@@ -1,16 +1,91 @@
-<!-- This line says "use base.html as my layout" -->
 {% extends "base.html" %}
 
-<!-- Fill in the title block -->
 {% block title %}Upload — FYP Grading Tool{% endblock %}
 
-<!-- Fill in the content block -->
 {% block content %}
 <div class="upload-container">
     <h2>Upload Submission</h2>
     <p>Upload a student FYP report and select a marking rubric to begin grading.</p>
-    
-    <!-- We'll build this form properly in Phase 1 -->
-    <p><em>Upload form coming soon...</em></p>
+
+    <!-- Flash messages — these show success/error alerts -->
+    <!-- Flask has a built-in "flash" system for one-time messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- 
+        enctype="multipart/form-data" is CRITICAL for file uploads.
+        Without it, the browser sends the filename but NOT the file contents.
+        This is a very common mistake beginners make.
+    -->
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        
+        <!-- Student name input -->
+        <div class="form-group">
+            <label for="student_name">Student Name</label>
+            <input type="text" id="student_name" name="student_name" 
+                   placeholder="e.g. Sam Dev" required>
+        </div>
+
+        <!-- Student number input -->
+        <div class="form-group">
+            <label for="student_number">Student Number</label>
+            <input type="text" id="student_number" name="student_number" 
+                   placeholder="e.g. UP2303086" required
+                   pattern="[Uu][Pp]\d{7}"
+                   title="Student number must start with UP followed by 7 digits (e.g. UP2303086)">
+            <small>Format: UP followed by 7 digits (e.g. UP2303086)</small>
+        </div>
+
+        <!-- Report upload -->
+        <div class="form-group">
+            <label for="report">Student Report (PDF or DOCX)</label>
+            <input type="file" id="report" name="report" 
+                   accept=".pdf,.docx" required>
+            <small>Max file size: 250 MB</small>
+        </div>
+
+        <!-- Rubric section -->
+        <div class="form-group">
+            <label for="rubric_choice">Marking Rubric</label>
+            <select id="rubric_choice" name="rubric_choice">
+                <option value="upload_new">Upload new rubric</option>
+                <!-- Saved rubrics will be loaded here dynamically later -->
+                {% for rubric in saved_rubrics %}
+                    <option value="{{ rubric }}">{{ rubric }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- New rubric upload (shown only when "Upload new" is selected) -->
+        <div class="form-group" id="rubric-upload-group">
+            <label for="rubric">Rubric File (PDF)</label>
+            <input type="file" id="rubric" name="rubric" accept=".pdf">
+            <small>Max file size: 250 MB</small>
+        </div>
+
+        <button type="submit" class="btn">Start Grading</button>
+    </form>
 </div>
+
+<!-- Simple JS to show/hide rubric upload based on dropdown -->
+<script>
+    const rubricChoice = document.getElementById('rubric_choice');
+    const rubricUpload = document.getElementById('rubric-upload-group');
+
+    rubricChoice.addEventListener('change', function() {
+        // Show the file input only if "Upload new" is selected
+        if (this.value === 'upload_new') {
+            rubricUpload.style.display = 'block';
+        } else {
+            rubricUpload.style.display = 'none';
+        }
+    });
+</script>
 {% endblock %}
