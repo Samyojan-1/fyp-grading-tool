@@ -1,10 +1,13 @@
 import os
 import re
+import json
 from datetime import datetime
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 import config
 from services.file_parser import extract_text
+from services.rubric_parser import parse_rubric, save_rubric, load_rubric
+import base64
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -130,33 +133,115 @@ def handle_upload():
     # --- Extract text from the report ---
     result = extract_text(report_path)
     
-    # Check if extraction failed
     if 'error' in result:
         flash(f'Warning: Could not extract text from report — {result["error"]}', 'error')
         return redirect(url_for('upload.upload_page'))
     
-    # Check for scanned PDF (FR-04)
     if result.get('is_scanned'):
         flash('Warning: This PDF appears to be scanned (no extractable text). '
               'It has been flagged for manual review.', 'error')
         return redirect(url_for('upload.upload_page'))
     
-    # For now, let's just print the stats to the terminal so we can verify it works
-    # We'll use this data properly in Phase 3+
-    print(f"\n{'='*50}")
-    print(f"Text extracted from: {report_filename}")
-    print(f"Total characters: {len(result['text'])}")
-    if 'page_count' in result:
-        print(f"Pages: {result['page_count']}")
-    if 'paragraph_count' in result:
-        print(f"Paragraphs: {result['paragraph_count']}")
-    # Show first 500 characters as a preview
-    print(f"\nPreview:\n{result['text'][:500]}")
-    print(f"{'='*50}\n")
+    # --- Handle rubric ---
+    if rubric_choice == 'upload_new':
+        # Parse the new rubric with AI
+        flash('Parsing rubric... This may take a moment.', 'success')
+        parsed = parse_rubric(rubric_path)
+        
+        if 'error' in parsed:
+            flash(f'Rubric parsing failed: {parsed["error"]}', 'error')
+            return redirect(url_for('upload.upload_page'))
+        
+        # Show verification page (FR-10)
+        # return render_template('rubric_verify.html',
+        #     parsed_rubric=parsed,
+        #     rubric_json=json.dumps(parsed),  # Pass as JSON string for the hidden form field
+        #     rubric_filename=rubric_filename,
+        #     submission_folder=submission_folder
+        # )
+        import base64
+        # Encode the JSON as base64 to avoid quote/special character issues in HTML
+        # This is a common trick — the JSON contains quotes that break HTML attributes
+        rubric_json_b64 = base64.b64encode(json.dumps(parsed).encode()).decode()
+        
+        return render_template('rubric_verify.html',
+            parsed_rubric=parsed,
+            rubric_json=rubric_json_b64,
+            rubric_filename=rubric_filename,
+            submission_folder=submission_folder
+        )
+    else:
+        # Using a saved rubric — skip verification (FR-11)
+        # TODO: proceed to grading (Phase 4)
+        flash(f'Files uploaded for {student_name} ({student_number}) with saved rubric.', 'success')
+        return redirect(url_for('upload.upload_page'))
+
+    # # --- Extract text from the report ---
+    # result = extract_text(report_path)
     
-    # Success!
-    flash(f'Files uploaded successfully for {student_name} ({student_number})!', 'success')
+    # # Check if extraction failed
+    # if 'error' in result:
+    #     flash(f'Warning: Could not extract text from report — {result["error"]}', 'error')
+    #     return redirect(url_for('upload.upload_page'))
     
-    # For now, redirect back to upload page
-    # Later this will redirect to the grading page
+    # # Check for scanned PDF (FR-04)
+    # if result.get('is_scanned'):
+    #     flash('Warning: This PDF appears to be scanned (no extractable text). '
+    #           'It has been flagged for manual review.', 'error')
+    #     return redirect(url_for('upload.upload_page'))
+    
+    # # For now, let's just print the stats to the terminal so we can verify it works
+    # # We'll use this data properly in Phase 3+
+    # print(f"\n{'='*50}")
+    # print(f"Text extracted from: {report_filename}")
+    # print(f"Total characters: {len(result['text'])}")
+    # if 'page_count' in result:
+    #     print(f"Pages: {result['page_count']}")
+    # if 'paragraph_count' in result:
+    #     print(f"Paragraphs: {result['paragraph_count']}")
+    # # Show first 500 characters as a preview
+    # print(f"\nPreview:\n{result['text'][:500]}")
+    # print(f"{'='*50}\n")
+
+    # # Success!
+    # flash(f'Files uploaded successfully for {student_name} ({student_number})!', 'success')
+    
+    # # For now, redirect back to upload page
+    # # Later this will redirect to the grading page
+    # return redirect(url_for('upload.upload_page'))
+
+@upload_bp.route('/rubric/confirm', methods=['POST'])
+def confirm_rubric():
+    """
+    Handle rubric confirmation (FR-11).
+    User has verified the parsed rubric and wants to save it.
+    """
+    rubric_data = request.form.get('rubric_data')
+    rubric_filename = request.form.get('rubric_filename')
+    submission_folder = request.form.get('submission_folder')
+    
+    if not rubric_data:
+        flash('No rubric data received.', 'error')
+        return redirect(url_for('upload.upload_page'))
+    
+    # try:
+    #     parsed_rubric = json.loads(rubric_data)
+    try:
+        # import base64
+        # Decode from base64 back to JSON string, then parse
+        decoded = base64.b64decode(rubric_data.encode()).decode()
+        parsed_rubric = json.loads(decoded)
+
+    except json.JSONDecodeError:
+        flash('Invalid rubric data.', 'error')
+        return redirect(url_for('upload.upload_page'))
+    
+    # Save the parsed rubric as JSON (FR-37)
+    saved_filename = save_rubric(parsed_rubric, rubric_filename)
+    
+    flash(f'Rubric "{parsed_rubric.get("rubric_name", "Unknown")}" saved successfully! '
+          f'It will now appear in the dropdown for future use.', 'success')
+    
+    # TODO: proceed to grading (Phase 4)
+    # For now, redirect back to upload
     return redirect(url_for('upload.upload_page'))

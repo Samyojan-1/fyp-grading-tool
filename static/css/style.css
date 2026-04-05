@@ -111,3 +111,141 @@ footer {
     max-width: 600px;
 }
 
+/* Rubric verification */
+.rubric-summary {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.criteria-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+    font-size: 0.9em;
+}
+
+.criteria-table th,
+.criteria-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.criteria-table th {
+    background: #2c3e50;
+    color: white;
+}
+
+.criteria-table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.descriptor {
+    font-size: 0.85em;
+    color: #555;
+}
+
+.verify-actions {
+    margin-top: 20px;
+}
+
+.btn-confirm {
+    background-color: #27ae60;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.btn-confirm:hover {
+    background-color: #219a52;
+}
+
+.btn-reject {
+    background-color: #c0392b;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-reject:hover {
+    background-color: #a93226;
+}
+
+/* Wide container for rubric grid */
+.verify-container-wide {
+    max-width: 100%;
+}
+
+.rubric-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 25px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.rubric-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8em;
+}
+
+.rubric-grid th,
+.rubric-grid td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.rubric-grid th {
+    background: #2c3e50;
+    color: white;
+    text-align: center;
+    position: sticky;
+    top: 0;
+}
+
+.category-cell {
+    font-weight: 600;
+    min-width: 150px;
+    background: #f0f3f5;
+}
+
+.weight-cell {
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.descriptor-cell {
+    font-size: 0.9em;
+    color: #444;
+    line-height: 1.4;
+    min-width: 120px;
+}
+
+.rubric-grid tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.rubric-grid tbody tr:hover {
+    background: #f0f7ff;
+}
+
+.criterion-question {
+    font-weight: normal;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+    font-style: italic;
+}
