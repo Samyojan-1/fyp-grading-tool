@@ -111,19 +111,19 @@ def parse_rubric(rubric_file_path):
         return {'error': 'AI could not extract any criteria from this rubric.'}
     
     # DEBUG: Print what we parsed so we can verify
-    print("\n" + "="*50)
-    print("DEBUG: Parsed rubric data:")
-    print(f"Rubric name: {result.get('rubric_name')}")
-    print(f"Number of criteria: {len(result['criteria'])}")
-    for i, criterion in enumerate(result['criteria']):
-        print(f"\nCriterion {i+1}: {criterion['name']} ({criterion['weighting']}%)")
-        print(f"  Grade bands: {len(criterion.get('grade_bands', []))}")
-        if criterion.get('grade_bands'):
-            print(f"  First band keys: {list(criterion['grade_bands'][0].keys())}")
-        for band in criterion.get('grade_bands', []):
-            desc_preview = band.get('description', 'NO DESCRIPTION')[:80]
-            print(f"    {band.get('range')}: {desc_preview}...")
-    print("="*50 + "\n")
+    # print("\n" + "="*50)
+    # print("DEBUG: Parsed rubric data:")
+    # print(f"Rubric name: {result.get('rubric_name')}")
+    # print(f"Number of criteria: {len(result['criteria'])}")
+    # for i, criterion in enumerate(result['criteria']):
+    #     print(f"\nCriterion {i+1}: {criterion['name']} ({criterion['weighting']}%)")
+    #     print(f"  Grade bands: {len(criterion.get('grade_bands', []))}")
+    #     if criterion.get('grade_bands'):
+    #         print(f"  First band keys: {list(criterion['grade_bands'][0].keys())}")
+    #     for band in criterion.get('grade_bands', []):
+    #         desc_preview = band.get('description', 'NO DESCRIPTION')[:80]
+    #         print(f"    {band.get('range')}: {desc_preview}...")
+    # print("="*50 + "\n")
     return result
 
 

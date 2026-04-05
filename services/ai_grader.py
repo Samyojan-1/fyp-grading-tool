@@ -62,18 +62,18 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
         response = client.chat.completions.create(
             model=config.AZURE_DEPLOYMENT,
             messages=messages,
-            max_completion_tokens=40000,  # Increased — reasoning tokens are hidden and count toward this
+            max_completion_tokens=20000,  # Increased — reasoning tokens are hidden and count toward this
             reasoning_effort=reasoning_effort
         )
         
         # DEBUG: Print the full response details so we can see what's happening
-        print("\n" + "="*50)
-        print("DEBUG: Full API response details:")
-        print(f"Finish reason: {response.choices[0].finish_reason}")
-        print(f"Usage: {response.usage}")
-        if hasattr(response.choices[0].message, 'refusal') and response.choices[0].message.refusal:
-            print(f"REFUSAL: {response.choices[0].message.refusal}")
-        print("="*50 + "\n")
+        # print("\n" + "="*50)
+        # print("DEBUG: Full API response details:")
+        # print(f"Finish reason: {response.choices[0].finish_reason}")
+        # print(f"Usage: {response.usage}")
+        # if hasattr(response.choices[0].message, 'refusal') and response.choices[0].message.refusal:
+        #     print(f"REFUSAL: {response.choices[0].message.refusal}")
+        # print("="*50 + "\n")
         
         result_text = response.choices[0].message.content
         
@@ -110,14 +110,14 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
                 cleaned = re.sub(r' +', ' ', cleaned)
                 return json.loads(cleaned)
             except json.JSONDecodeError:
-                print("\n" + "="*50)
-                print("DEBUG: AI response that failed JSON parsing:")
-                print("="*50)
-                print(result_text)
-                print("="*50)
-                print(f"First 50 chars: {repr(result_text[:50])}")
-                print(f"Last 50 chars: {repr(result_text[-50:])}")
-                print("="*50 + "\n")
+                # print("\n" + "="*50)
+                # print("DEBUG: AI response that failed JSON parsing:")
+                # print("="*50)
+                # print(result_text)
+                # print("="*50)
+                # print(f"First 50 chars: {repr(result_text[:50])}")
+                # print(f"Last 50 chars: {repr(result_text[-50:])}")
+                # print("="*50 + "\n")
                 return {
                     'error': 'AI response was not valid JSON',
                     'raw_response': result_text
