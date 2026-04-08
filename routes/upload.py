@@ -8,6 +8,9 @@ import config
 from services.file_parser import extract_text
 from services.rubric_parser import parse_rubric, save_rubric, load_rubric
 import base64
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from services.ai_grader import grade_report
+from services.rubric_parser import parse_rubric, save_rubric, load_rubric
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -171,10 +174,41 @@ def handle_upload():
             submission_folder=submission_folder
         )
     else:
-        # Using a saved rubric — skip verification (FR-11)
-        # TODO: proceed to grading (Phase 4)
-        flash(f'Files uploaded for {student_name} ({student_number}) with saved rubric.', 'success')
-        return redirect(url_for('upload.upload_page'))
+        # Using a saved rubric — skip verification, go straight to grading (FR-11)
+        rubric_data = load_rubric(rubric_choice)
+        
+        if 'error' in rubric_data:
+            flash(f'Could not load rubric: {rubric_data["error"]}', 'error')
+            return redirect(url_for('upload.upload_page'))
+        
+        # Grade the report
+        flash('Grading in progress... This may take 1-3 minutes.', 'success')
+        grading_result = grade_report(result['text'], rubric_data)
+        
+        if 'error' in grading_result:
+            flash(f'Grading failed: {grading_result["error"]}', 'error')
+            return redirect(url_for('upload.upload_page'))
+        
+        # Store results as a JSON file in the submission folder
+        # (Session cookies have a 4KB limit which grading results exceed)
+        results_data = {
+            'grading_result': grading_result,
+            'student_info': {
+                'name': student_name,
+                'number': student_number,
+                'report_filename': report_filename,
+                'submission_folder': submission_folder
+            }
+        }
+        
+        results_path = os.path.join(submission_folder, 'grading_results.json')
+        with open(results_path, 'w') as f:
+            json.dump(results_data, f, indent=2)
+        
+        # Store just the path in session (small enough for a cookie)
+        session['results_path'] = results_path
+        
+        return redirect(url_for('grading.grading_page'))
 
     # # --- Extract text from the report ---
     # result = extract_text(report_path)
@@ -242,6 +276,8 @@ def confirm_rubric():
     flash(f'Rubric "{parsed_rubric.get("rubric_name", "Unknown")}" saved successfully! '
           f'It will now appear in the dropdown for future use.', 'success')
     
-    # TODO: proceed to grading (Phase 4)
-    # For now, redirect back to upload
+    # Check if we have report data in session to grade
+    # For now, redirect to upload — grading with new rubrics will work
+    # after the user re-uploads with the saved rubric from the dropdown
+    flash('You can now select this rubric from the dropdown when uploading a report.', 'success')
     return redirect(url_for('upload.upload_page'))

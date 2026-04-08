@@ -136,4 +136,140 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
             return {'error': 'Authentication failed. Check your Azure API key in .env file.'}
         else:
             return {'error': f'AI service error: {error_msg}'}
+
+#######################################
+
+def grade_report(report_text, rubric_data):
+    """
+    Grade a student report against a parsed rubric.
+    
+    This is the main grading function — it sends the report and rubric
+    to the AI and gets back scores, feedback, and a summary.
+    
+    Parameters:
+    - report_text: the extracted Markdown text from the student's report
+    - rubric_data: the parsed rubric dictionary (from JSON)
+    
+    Returns:
+    - Dictionary with criteria_results, overall_summary, plagiarism_flags
+    - Or a dict with 'error' key if something went wrong
+    """
+    # Import the prompt builder
+    from prompts.grading_prompt import GRADING_SYSTEM_PROMPT, build_grading_prompt
+    
+    # Build the user prompt with report + rubric
+    user_prompt = build_grading_prompt(report_text, rubric_data)
+    
+    # Log the token estimate (rough: 1 token ≈ 4 characters)
+    estimated_tokens = len(user_prompt) // 4
+    print(f"\n{'='*50}")
+    print(f"GRADING: Sending ~{estimated_tokens} estimated tokens to AI")
+    print(f"Report length: {len(report_text)} chars")
+    print(f"Criteria count: {len(rubric_data['criteria'])}")
+    print(f"{'='*50}\n")
+    
+    # Send to AI with high reasoning effort for grading accuracy
+    # This is the most important AI call — we want the best quality
+    result = call_ai(
+        developer_prompt=GRADING_SYSTEM_PROMPT,
+        user_prompt=user_prompt,
+        expect_json=True,
+        reasoning_effort="high"  # Use high effort for grading — accuracy matters most here
+    )
+    
+    # Validate the result
+    if isinstance(result, dict) and 'error' in result:
+        return result
+    
+    if 'criteria_results' not in result:
+        return {'error': 'AI response missing criteria_results'}
+    
+    # Calculate the overall weighted score (FR-19)
+    result = calculate_overall_score(result, rubric_data)
+    
+    return result
+
+
+def calculate_overall_score(grading_result, rubric_data):
+    """
+    Calculate the overall weighted score from individual criterion scores (FR-19).
+    
+    Uses fuzzy matching to pair AI results with rubric criteria,
+    since the AI may slightly rephrase criterion names.
+    """
+    total_weighted_score = 0
+    total_weight = 0
+    
+    # Build a list of rubric criteria for matching
+    rubric_criteria = rubric_data['criteria']
+    
+    for criteria_result in grading_result['criteria_results']:
+        criterion_name = criteria_result['criterion_name'].lower().strip()
         
+        # Try to find the best matching rubric criterion
+        best_match = None
+        best_score = 0
+        
+        for rubric_criterion in rubric_criteria:
+            rubric_name = rubric_criterion['name'].lower().strip()
+            
+            # Calculate a simple similarity score
+            # Count how many words from one name appear in the other
+            criterion_words = set(criterion_name.split())
+            rubric_words = set(rubric_name.split())
+            
+            # Words in common
+            common_words = criterion_words & rubric_words
+            
+            if len(criterion_words) == 0 or len(rubric_words) == 0:
+                continue
+            
+            # Similarity = common words / max possible words
+            similarity = len(common_words) / max(len(criterion_words), len(rubric_words))
+            
+            if similarity > best_score:
+                best_score = similarity
+                best_match = rubric_criterion
+        
+        # Use matched weight, or default if no good match
+        if best_match and best_score > 0.3:  # At least 30% word overlap
+            matching_weight = best_match['weighting']
+        else:
+            matching_weight = 100 / len(grading_result['criteria_results'])
+            print(f"WARNING: Poor match for '{criteria_result['criterion_name']}' "
+                  f"(best similarity: {best_score:.2f}). Using default weight.")
+        
+        score = criteria_result.get('score', 0)
+        total_weighted_score += score * matching_weight
+        total_weight += matching_weight
+        
+        # Store the weight in the result for display
+        criteria_result['weighting'] = round(matching_weight, 2)
+    
+    # Calculate overall percentage
+    if total_weight > 0:
+        overall_score = round(total_weighted_score / total_weight, 1)
+    else:
+        overall_score = 0
+    
+    # Determine overall grade band from rubric's actual bands
+    grade_bands = rubric_data['criteria'][0].get('grade_bands', [])
+    overall_band = "Unknown"
+    for band in grade_bands:
+        band_range = band['range']
+        # Parse "60-69" or "60–69" (note the different dash characters)
+        parts = band_range.replace('–', '-').split('-')
+        if len(parts) == 2:
+            try:
+                low = int(parts[0].strip())
+                high = int(parts[1].strip())
+                if low <= overall_score <= high:
+                    overall_band = band_range
+                    break
+            except ValueError:
+                continue
+    
+    grading_result['overall_score'] = overall_score
+    grading_result['overall_grade_band'] = overall_band
+    
+    return grading_result
