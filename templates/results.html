@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Results — FYP Grading Tool{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <h2>Grading Results</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="student-info">
+        <p><strong>Student:</strong> {{ student.name }} ({{ student.number }})</p>
+        <p><strong>Report:</strong> {{ student.report_filename }}</p>
+    </div>
+
+    <div class="overall-score">
+        <h3>Overall Score</h3>
+        <div class="score-display">
+            <span class="big-score">{{ results.overall_score }}%</span>
+            <span class="grade-band-label">Grade Band: {{ results.overall_grade_band }}</span>
+        </div>
+    </div>
+
+    <h3>Criterion Breakdown</h3>
+    {% for criterion in results.criteria_results %}
+    <div class="criterion-result">
+        <div class="criterion-result-header">
+            <h4>{{ criterion.criterion_name }}</h4>
+            <div class="criterion-scores">
+                <span class="criterion-score">{{ criterion.score }}%</span>
+                <span class="criterion-band">{{ criterion.grade_band }}</span>
+                {% if criterion.weighting %}
+                <span class="criterion-weight">Weight: {{ criterion.weighting }}%</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="criterion-feedback">
+            <p>{{ criterion.feedback }}</p>
+            {% if criterion.evidence_location %}
+            <p class="evidence-ref"><strong>Evidence found:</strong> {{ criterion.evidence_location }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if results.plagiarism_flags and results.plagiarism_flags != 'None detected' %}
+    <div class="plagiarism-section">
+        <h3>Plagiarism & Referencing Flags</h3>
+        <p>{{ results.plagiarism_flags }}</p>
+    </div>
+    {% endif %}
+
+    <div class="summary-section">
+        <h3>Overall Summary</h3>
+        <p>{{ results.overall_summary }}</p>
+    </div>
+
+    <div class="results-actions">
+        <a href="/" class="btn">Grade Another Report</a>
+    </div>
+</div>
+{% endblock %}
+

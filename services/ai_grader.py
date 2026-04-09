@@ -137,3 +137,164 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
         else:
             return {'error': f'AI service error: {error_msg}'}
         
+def map_sections(report_text, rubric_data):
+    """
+    Stage 1: Map report sections to rubric criteria.
+    
+    Sends the full report + criteria names to the AI.
+    Returns a mapping of which sections are relevant to each criterion.
+    """
+    from prompts.grading_prompt import MAPPING_SYSTEM_PROMPT, build_mapping_prompt
+    
+    user_prompt = build_mapping_prompt(report_text, rubric_data['criteria'])
+    
+    estimated_tokens = len(user_prompt) // 4
+    print(f"\n{'='*50}")
+    print(f"STAGE 1 - MAPPING: Sending ~{estimated_tokens} estimated tokens")
+    print(f"{'='*50}\n")
+    
+    result = call_ai(
+        developer_prompt=MAPPING_SYSTEM_PROMPT,
+        user_prompt=user_prompt,
+        expect_json=True,
+        reasoning_effort="medium"  # Mapping is simpler than grading
+    )
+    
+    if isinstance(result, dict) and 'error' in result:
+        return result
+    
+    if 'section_mapping' not in result:
+        return {'error': 'AI response missing section_mapping'}
+    
+    print(f"\n{'='*50}")
+    print("STAGE 1 COMPLETE - Section mapping:")
+    for item in result['section_mapping']:
+        print(f"  {item['criterion_name']}")
+        print(f"    → {', '.join(item['relevant_sections'])}")
+    print(f"{'='*50}\n")
+    
+    return result
+
+
+def grade_report(report_text, rubric_data):
+    """
+    Two-stage grading pipeline.
+    
+    Stage 1: Map report sections to criteria (one API call)
+    Stage 2: Grade all criteria using the mapping (one API call)
+    
+    This decomposition is supported by research showing that
+    separating evidence identification from scoring improves
+    accuracy and reduces central tendency bias.
+    """
+    from prompts.grading_prompt import GRADING_SYSTEM_PROMPT, build_grading_prompt
+    
+    # === STAGE 1: Section Mapping ===
+    mapping_result = map_sections(report_text, rubric_data)
+    
+    if 'error' in mapping_result:
+        return {'error': f'Stage 1 (mapping) failed: {mapping_result["error"]}'}
+    
+    section_mapping = mapping_result['section_mapping']
+    
+    # === STAGE 2: Grading ===
+    user_prompt = build_grading_prompt(report_text, rubric_data, section_mapping)
+    
+    estimated_tokens = len(user_prompt) // 4
+    print(f"\n{'='*50}")
+    print(f"STAGE 2 - GRADING: Sending ~{estimated_tokens} estimated tokens")
+    print(f"{'='*50}\n")
+    
+    result = call_ai(
+        developer_prompt=GRADING_SYSTEM_PROMPT,
+        user_prompt=user_prompt,
+        expect_json=True,
+        reasoning_effort="high"  # High effort for grading accuracy
+    )
+    
+    if isinstance(result, dict) and 'error' in result:
+        return {'error': f'Stage 2 (grading) failed: {result["error"]}'}
+    
+    if 'criteria_results' not in result:
+        return {'error': 'AI response missing criteria_results'}
+    
+    # Store the mapping in the result for traceability (FR-13)
+    result['section_mapping'] = section_mapping
+    
+    # Calculate overall weighted score (FR-19)
+    result = calculate_overall_score(result, rubric_data)
+    
+    return result
+
+
+def calculate_overall_score(grading_result, rubric_data):
+    """
+    Calculate the overall weighted score from individual criterion scores (FR-19).
+    Uses word-overlap similarity for matching criterion names.
+    """
+    total_weighted_score = 0
+    total_weight = 0
+    
+    rubric_criteria = rubric_data['criteria']
+    
+    for criteria_result in grading_result['criteria_results']:
+        criterion_name = criteria_result['criterion_name'].lower().strip()
+        
+        best_match = None
+        best_score = 0
+        
+        for rubric_criterion in rubric_criteria:
+            rubric_name = rubric_criterion['name'].lower().strip()
+            
+            criterion_words = set(criterion_name.split())
+            rubric_words = set(rubric_name.split())
+            common_words = criterion_words & rubric_words
+            
+            if len(criterion_words) == 0 or len(rubric_words) == 0:
+                continue
+            
+            similarity = len(common_words) / max(len(criterion_words), len(rubric_words))
+            
+            if similarity > best_score:
+                best_score = similarity
+                best_match = rubric_criterion
+        
+        if best_match and best_score > 0.3:
+            matching_weight = best_match['weighting']
+        else:
+            matching_weight = 100 / len(grading_result['criteria_results'])
+            print(f"WARNING: Poor match for '{criteria_result['criterion_name']}' "
+                  f"(best similarity: {best_score:.2f}). Using default weight.")
+        
+        score = criteria_result.get('score', 0)
+        total_weighted_score += score * matching_weight
+        total_weight += matching_weight
+        criteria_result['weighting'] = round(matching_weight, 2)
+    
+    if total_weight > 0:
+        overall_score = round(total_weighted_score / total_weight, 1)
+    else:
+        overall_score = 0
+    
+    # Determine grade band from rubric's actual bands
+    grade_bands = rubric_data['criteria'][0].get('grade_bands', [])
+    overall_band = "Unknown"
+    for band in grade_bands:
+        band_range = band['range'].replace('–', '-')
+        parts = band_range.split('-')
+        if len(parts) == 2:
+            try:
+                low = int(parts[0].strip())
+                high = int(parts[1].strip())
+                if low <= overall_score <= high:
+                    overall_band = band['range']
+                    break
+            except ValueError:
+                continue
+    
+    grading_result['overall_score'] = overall_score
+    grading_result['overall_grade_band'] = overall_band
+    
+    return grading_result
+
+        

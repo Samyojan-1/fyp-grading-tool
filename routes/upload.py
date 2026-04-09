@@ -1,13 +1,14 @@
 import os
 import re
 import json
+import base64
 from datetime import datetime
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from werkzeug.utils import secure_filename
 import config
 from services.file_parser import extract_text
 from services.rubric_parser import parse_rubric, save_rubric, load_rubric
-import base64
+from services.ai_grader import grade_report
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -171,44 +172,38 @@ def handle_upload():
             submission_folder=submission_folder
         )
     else:
-        # Using a saved rubric — skip verification (FR-11)
-        # TODO: proceed to grading (Phase 4)
-        flash(f'Files uploaded for {student_name} ({student_number}) with saved rubric.', 'success')
-        return redirect(url_for('upload.upload_page'))
-
-    # # --- Extract text from the report ---
-    # result = extract_text(report_path)
-    
-    # # Check if extraction failed
-    # if 'error' in result:
-    #     flash(f'Warning: Could not extract text from report — {result["error"]}', 'error')
-    #     return redirect(url_for('upload.upload_page'))
-    
-    # # Check for scanned PDF (FR-04)
-    # if result.get('is_scanned'):
-    #     flash('Warning: This PDF appears to be scanned (no extractable text). '
-    #           'It has been flagged for manual review.', 'error')
-    #     return redirect(url_for('upload.upload_page'))
-    
-    # # For now, let's just print the stats to the terminal so we can verify it works
-    # # We'll use this data properly in Phase 3+
-    # print(f"\n{'='*50}")
-    # print(f"Text extracted from: {report_filename}")
-    # print(f"Total characters: {len(result['text'])}")
-    # if 'page_count' in result:
-    #     print(f"Pages: {result['page_count']}")
-    # if 'paragraph_count' in result:
-    #     print(f"Paragraphs: {result['paragraph_count']}")
-    # # Show first 500 characters as a preview
-    # print(f"\nPreview:\n{result['text'][:500]}")
-    # print(f"{'='*50}\n")
-
-    # # Success!
-    # flash(f'Files uploaded successfully for {student_name} ({student_number})!', 'success')
-    
-    # # For now, redirect back to upload page
-    # # Later this will redirect to the grading page
-    # return redirect(url_for('upload.upload_page'))
+        # Using a saved rubric — skip verification, go straight to grading (FR-11)
+        rubric_data = load_rubric(rubric_choice)
+        
+        if 'error' in rubric_data:
+            flash(f'Could not load rubric: {rubric_data["error"]}', 'error')
+            return redirect(url_for('upload.upload_page'))
+        
+        # Grade the report using two-stage pipeline
+        grading_result = grade_report(result['text'], rubric_data)
+        
+        if 'error' in grading_result:
+            flash(f'Grading failed: {grading_result["error"]}', 'error')
+            return redirect(url_for('upload.upload_page'))
+        
+        # Save results to file (session cookies are too small)
+        results_data = {
+            'grading_result': grading_result,
+            'student_info': {
+                'name': student_name,
+                'number': student_number,
+                'report_filename': report_filename,
+                'submission_folder': submission_folder
+            }
+        }
+        
+        results_path = os.path.join(submission_folder, 'grading_results.json')
+        with open(results_path, 'w') as f:
+            json.dump(results_data, f, indent=2)
+        
+        session['results_path'] = results_path
+        
+        return redirect(url_for('grading.grading_page'))
 
 @upload_bp.route('/rubric/confirm', methods=['POST'])
 def confirm_rubric():

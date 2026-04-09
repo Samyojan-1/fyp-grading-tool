@@ -249,3 +249,109 @@ footer {
     margin-top: 5px;
     font-style: italic;
 }
+
+/* Results page */
+.student-info {
+    background: #f8f9fa;
+    padding: 12px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.overall-score {
+    text-align: center;
+    padding: 20px;
+    background: #2c3e50;
+    color: white;
+    border-radius: 6px;
+    margin-bottom: 25px;
+}
+
+.big-score {
+    font-size: 3em;
+    font-weight: 700;
+    display: block;
+}
+
+.grade-band-label {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.criterion-result {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.criterion-result-header {
+    background: #f8f9fa;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.criterion-result-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.criterion-scores {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.criterion-score {
+    background: #3498db;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.criterion-band {
+    background: #ecf0f1;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    color: #555;
+}
+
+.criterion-weight {
+    font-size: 0.85em;
+    color: #888;
+}
+
+.criterion-feedback {
+    padding: 15px 20px;
+}
+
+.evidence-ref {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 8px;
+}
+
+.plagiarism-section {
+    background: #fff3e0;
+    border: 1px solid #ffe0b2;
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.summary-section {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.results-actions {
+    margin-top: 20px;
+}
