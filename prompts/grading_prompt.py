@@ -77,36 +77,36 @@ GRADING PROCESS — Follow these steps for EACH criterion:
 
 STEP 1 - LOCATE EVIDENCE:
 Using the section mapping provided, go to the relevant sections of the report.
-Read them carefully and identify specific evidence that relates to this criterion.
+Read them carefully.
 
-STEP 2 - EVALUATE AGAINST EVERY BAND (from lowest to highest):
-Work through the grade band descriptors starting from the LOWEST band (0-29) upward.
+STEP 2 - ANSWER THE GUIDING QUESTION:
+Each criterion has a guiding question (e.g. "How critical, relevant, comprehensive and current is the review?").
+You MUST answer this question HONESTLY and CRITICALLY based on what you found in the report.
+Do not be generous — answer as a strict examiner would.
+Ask yourself:
+- Does the student merely DESCRIBE or do they ANALYSE and EVALUATE?
+- Does the student JUSTIFY their choices or just STATE them?
+- Is the work THOROUGH or SUPERFICIAL?
+- Does the student show UNDERSTANDING or just REPEAT information from sources?
+Write your honest assessment in the "quality_assessment" field.
 
-For EACH band, you must do TWO things:
-A) Quote the key phrase from the band descriptor
-B) Find specific evidence in the report that MEETS or FAILS to meet that exact description
+STEP 3 - MATCH ASSESSMENT TO GRADE BAND:
+NOW look at the grade band descriptors. Based on your honest quality assessment from Step 2, which band descriptor BEST matches your assessment?
+- If your assessment says the work is superficial and lacks analysis → that is 30-39 or 40-49 work, NOT 60+
+- If your assessment says the work describes but doesn't justify → that is 40-49 or 50-59 work, NOT 60+
+- If your assessment says the work is well-researched with good critique → that is 60-69 or 70-79 work
+- Only select 60+ if your quality assessment genuinely describes GOOD quality work
 
-The question is NOT "does the report have something related to this criterion?"
-The question IS "does the quality of what's in the report match what this descriptor demands?"
+STEP 4 - SCORE ASSIGNMENT:
+Assign a specific percentage score WITHIN the selected band.
 
-For example:
-- If the 60-69 descriptor says "well framed and viewed in wider context" — is the framing GENUINELY of high quality? Or did the student just include a section heading and some surface-level content?
-- If the 50-59 descriptor says "showing understanding and analysis" — does the student demonstrate REAL understanding, or just describe things without analysing them?
-- Having a chapter called "Literature Review" does not automatically mean the literature was critically reviewed
-- Having numbered aims does not automatically mean the aims are well-framed
-- Having test results does not automatically mean testing was well-planned
-
-STOP at the band where the descriptor ACCURATELY describes the quality of work shown. Do not climb higher just because the report MENTIONS something — the question is whether it does it WELL.
-
-Keep your justification CONCISE — one short sentence per band is sufficient. Do not write paragraphs.
-
-STEP 3 - SCORE ASSIGNMENT:
+STEP 5 - SCORE ASSIGNMENT:
 Assign a specific percentage score WITHIN the selected band.
 - Top of the band: strongly meets most/all of the band's descriptor
 - Middle of the band: meets the descriptor adequately
 - Bottom of the band: just barely meets this band over the one below
 
-STEP 4 - FEEDBACK:
+STEP 6 - FEEDBACK:
 Write constructive, forward-looking feedback scaled to the criterion's weighting:
 - Weighting 1: 1-2 sentences
 - Weighting 2: 2-3 sentences
@@ -130,7 +130,9 @@ Return your response as a JSON object with this EXACT structure:
     "criteria_results": [
         {
             "criterion_name": "Exact criterion name from rubric",
-            "justification": "Exceeds 0-29 because [reason]. Exceeds 30-39 because [reason]. Matches 40-49 because [reason]. Selected band: 40-49.",            "selected_band": "40-49",
+            "guiding_question": "The guiding question for this criterion",
+            "quality_assessment": "Your honest, critical answer to the guiding question based on what you found in the report. Be specific about what the student did well and what was weak or missing.",
+            "selected_band": "The grade band that matches your quality assessment",
             "score": 45,
             "grade_band": "40-49",
             "feedback": "Constructive feedback referencing specific report content.",
