@@ -209,7 +209,7 @@ def grade_report(report_text, rubric_data):
         developer_prompt=GRADING_SYSTEM_PROMPT,
         user_prompt=user_prompt,
         expect_json=True,
-        reasoning_effort="high"  # High effort for grading accuracy
+        reasoning_effort="medium"  # High effort for grading accuracy
     )
     
     if isinstance(result, dict) and 'error' in result:
