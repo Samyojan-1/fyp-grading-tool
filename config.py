@@ -15,6 +15,5 @@ ALLOWED_RUBRIC_EXTENSIONS = {'pdf'}
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 RUBRIC_FOLDER = os.path.join(BASE_DIR, 'rubrics')
-RESULTS_FOLDER = os.path.join(BASE_DIR, 'results')
 
 
