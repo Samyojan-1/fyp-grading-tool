@@ -3,84 +3,96 @@
 {% block title %}Upload — FYP Grading Tool{% endblock %}
 
 {% block content %}
-<div class="upload-container">
-    <h2>Upload Submission</h2>
-    <p>Upload a student FYP report and select a marking rubric to begin grading.</p>
-
-    <!-- Flash messages — these show success/error alerts -->
-    <!-- Flask has a built-in "flash" system for one-time messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <!-- 
-        enctype="multipart/form-data" is CRITICAL for file uploads.
-        Without it, the browser sends the filename but NOT the file contents.
-        This is a very common mistake beginners make.
-    -->
-    <form method="POST" action="/upload" enctype="multipart/form-data">
+<div class="row justify-content-center">
+    <!-- row + justify-content-center: centers the column horizontally -->
+    <!-- col-lg-7: takes 7 out of 12 columns on large screens -->
+    <!-- Bootstrap uses a 12-column grid system -->
+    <div class="col-lg-7">
         
-        <!-- Student name input -->
-        <div class="form-group">
-            <label for="student_name">Student Name</label>
-            <input type="text" id="student_name" name="student_name" 
-                   placeholder="e.g. Sam Dev" required>
-        </div>
+        <h2 class="mb-1">Upload submission</h2>
+        <p class="text-muted mb-4">Upload a student FYP report and select a marking rubric to begin grading.</p>
 
-        <!-- Student number input -->
-        <div class="form-group">
-            <label for="student_number">Student Number</label>
-            <input type="text" id="student_number" name="student_number" 
-                   placeholder="e.g. UP2303086" required
-                   pattern="[Uu][Pp]\d{7}"
-                   title="Student number must start with UP followed by 7 digits (e.g. UP2303086)">
-            <small>Format: UP followed by 7 digits (e.g. UP2303086)</small>
-        </div>
-
-        <!-- Report upload -->
-        <div class="form-group">
-            <label for="report">Student Report (PDF or DOCX)</label>
-            <input type="file" id="report" name="report" 
-                   accept=".pdf,.docx" required>
-            <small>Max file size: 250 MB</small>
-        </div>
-
-        <!-- Rubric section -->
-        <div class="form-group">
-            <label for="rubric_choice">Marking Rubric</label>
-            <select id="rubric_choice" name="rubric_choice">
-                <option value="upload_new">Upload new rubric</option>
-                <!-- Saved rubrics will be loaded here dynamically later -->
-                {% for rubric in saved_rubrics %}
-                    <option value="{{ rubric }}">{{ rubric }}</option>
+        <!-- Flash messages using Bootstrap alert component -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <!-- Bootstrap alert classes: alert-danger (red), alert-success (green) -->
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                        {{ message }}
+                        <!-- Dismiss button — Bootstrap handles closing the alert -->
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
                 {% endfor %}
-            </select>
-        </div>
+            {% endif %}
+        {% endwith %}
 
-        <!-- New rubric upload (shown only when "Upload new" is selected) -->
-        <div class="form-group" id="rubric-upload-group">
-            <label for="rubric">Rubric File (PDF)</label>
-            <input type="file" id="rubric" name="rubric" accept=".pdf">
-            <small>Max file size: 250 MB</small>
-        </div>
+        <!-- Card component — a bordered box with padding -->
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" action="/upload" enctype="multipart/form-data">
+                    
+                    <!-- Two columns side by side using Bootstrap grid -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <!-- mb-3: margin-bottom spacing -->
+                            <label for="student_name" class="form-label fw-semibold">Student name</label>
+                            <!-- form-control: Bootstrap's styled input -->
+                            <input type="text" class="form-control" id="student_name" 
+                                   name="student_name" placeholder="e.g. Sam Dev" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="student_number" class="form-label fw-semibold">Student number</label>
+                            <input type="text" class="form-control" id="student_number" 
+                                   name="student_number" placeholder="e.g. UP2303086" required
+                                   pattern="[Uu][Pp]\d{7}"
+                                   title="Must start with UP followed by 7 digits">
+                            <div class="form-text">Format: UP followed by 7 digits</div>
+                        </div>
+                    </div>
 
-        <button type="submit" class="btn">Start Grading</button>
-    </form>
+                    <!-- Report upload -->
+                    <div class="mb-3">
+                        <label for="report" class="form-label fw-semibold">Student report (PDF or DOCX)</label>
+                        <input type="file" class="form-control" id="report" name="report" 
+                               accept=".pdf,.docx" required>
+                        <div class="form-text">Max file size: 250 MB</div>
+                    </div>
+
+                    <!-- Rubric selection -->
+                    <div class="mb-3">
+                        <label for="rubric_choice" class="form-label fw-semibold">Marking rubric</label>
+                        <!-- form-select: Bootstrap's styled dropdown -->
+                        <select class="form-select" id="rubric_choice" name="rubric_choice">
+                            <option value="upload_new">Upload new rubric</option>
+                            {% for rubric in saved_rubrics %}
+                                <option value="{{ rubric }}">{{ rubric }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- New rubric upload -->
+                    <div class="mb-3" id="rubric-upload-group">
+                        <label for="rubric" class="form-label fw-semibold">Rubric file (PDF)</label>
+                        <input type="file" class="form-control" id="rubric" name="rubric" 
+                               accept=".pdf">
+                        <div class="form-text">Max file size: 250 MB</div>
+                    </div>
+
+                    <!-- Submit button -->
+                    <!-- btn btn-primary: Bootstrap's blue button -->
+                    <!-- w-100: width 100% (full width) -->
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Start grading</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Simple JS to show/hide rubric upload based on dropdown -->
 <script>
     const rubricChoice = document.getElementById('rubric_choice');
     const rubricUpload = document.getElementById('rubric-upload-group');
 
     rubricChoice.addEventListener('change', function() {
-        // Show the file input only if "Upload new" is selected
         if (this.value === 'upload_new') {
             rubricUpload.style.display = 'block';
         } else {

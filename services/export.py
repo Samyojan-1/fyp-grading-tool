@@ -84,7 +84,8 @@ def export_to_excel(results_data, output_path):
         ws['D3'].alignment = Alignment(horizontal='center')
         
         ws.merge_cells('D4:F4')
-        ws['D4'] = f"{results.get('overall_score', 0)}%"
+        ws['D4'] = results.get('overall_score', 0)
+        ws['D4'].number_format = '0.0"%"'
         ws['D4'].font = Font(bold=True, size=20)
         ws['D4'].alignment = Alignment(horizontal='center')
         
@@ -108,25 +109,58 @@ def export_to_excel(results_data, output_path):
         # --- Criteria Rows ---
         row += 1
         for i, criterion in enumerate(results.get('criteria_results', [])):
-            # Alternate row colours
             row_fill = PatternFill(start_color="F8F9FA", end_color="F8F9FA", fill_type="solid") if i % 2 == 0 else PatternFill(fill_type=None)
             
-            values = [
-                criterion.get('criterion_name', ''),
-                f"{criterion.get('weighting', '')}%",
-                criterion.get('score', ''),
-                criterion.get('grade_band', ''),
-                criterion.get('feedback', ''),
-                criterion.get('evidence_location', '')
-            ]
+            # Column 1: Criterion name (text)
+            cell = ws.cell(row=row, column=1, value=criterion.get('criterion_name', ''))
+            cell.font = normal_font
+            cell.alignment = wrap_alignment
+            cell.border = thin_border
+            if row_fill.fill_type:
+                cell.fill = row_fill
             
-            for col_idx, value in enumerate(values, 1):
-                cell = ws.cell(row=row, column=col_idx, value=value)
-                cell.font = score_font if col_idx == 3 else normal_font
-                cell.alignment = wrap_alignment
-                cell.border = thin_border
-                if row_fill.fill_type:
-                    cell.fill = row_fill
+            # Column 2: Weighting (NUMBER, not string)
+            # We store the raw number and format the cell to show %
+            cell = ws.cell(row=row, column=2, value=criterion.get('weighting', 0))
+            cell.font = normal_font
+            cell.alignment = Alignment(horizontal='center', vertical='top')
+            cell.border = thin_border
+            cell.number_format = '0.00"%"'  # Displays as "6.67%" but stores as 6.67
+            if row_fill.fill_type:
+                cell.fill = row_fill
+            
+            # Column 3: Score (NUMBER)
+            cell = ws.cell(row=row, column=3, value=criterion.get('score', 0))
+            cell.font = score_font
+            cell.alignment = Alignment(horizontal='center', vertical='top')
+            cell.border = thin_border
+            cell.number_format = '0'  # Whole number, no decimals
+            if row_fill.fill_type:
+                cell.fill = row_fill
+            
+            # Column 4: Grade band (text — this stays as string since it's a range like "60-69")
+            cell = ws.cell(row=row, column=4, value=criterion.get('grade_band', ''))
+            cell.font = normal_font
+            cell.alignment = Alignment(horizontal='center', vertical='top')
+            cell.border = thin_border
+            if row_fill.fill_type:
+                cell.fill = row_fill
+            
+            # Column 5: Feedback (text)
+            cell = ws.cell(row=row, column=5, value=criterion.get('feedback', ''))
+            cell.font = normal_font
+            cell.alignment = wrap_alignment
+            cell.border = thin_border
+            if row_fill.fill_type:
+                cell.fill = row_fill
+            
+            # Column 6: Evidence (text)
+            cell = ws.cell(row=row, column=6, value=criterion.get('evidence_location', ''))
+            cell.font = normal_font
+            cell.alignment = wrap_alignment
+            cell.border = thin_border
+            if row_fill.fill_type:
+                cell.fill = row_fill
             
             row += 1
         

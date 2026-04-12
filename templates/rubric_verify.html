@@ -3,63 +3,74 @@
 {% block title %}Verify Rubric — FYP Grading Tool{% endblock %}
 
 {% block content %}
-<div class="verify-container-wide">
-    <h2>Verify Parsed Rubric</h2>
-    <p>The AI has parsed the following criteria from your rubric. 
-       Please verify this is correct before proceeding.</p>
+<h2 class="mb-1">Verify parsed rubric</h2>
+<p class="text-muted mb-4">The AI has parsed the following criteria from your rubric. Please verify this is correct before proceeding.</p>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-    <div class="rubric-summary">
-        <h3>{{ parsed_rubric.rubric_name }}</h3>
-        <p><strong>Total criteria:</strong> {{ parsed_rubric.criteria | length }}</p>
-        <p><strong>Total weighting:</strong> {{ parsed_rubric.total_weighting }}%</p>
+<!-- Rubric summary card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">{{ parsed_rubric.rubric_name }}</h5>
+        <div class="d-flex gap-4">
+            <span><strong>Total criteria:</strong> {{ parsed_rubric.criteria | length }}</span>
+            <span><strong>Total weighting:</strong> {{ parsed_rubric.total_weighting }}%</span>
+        </div>
     </div>
+</div>
 
-    <div class="rubric-table-wrapper">
-        <table class="rubric-grid">
-            <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Wt</th>
-                    {% for band in parsed_rubric.criteria[0].grade_bands %}
-                    <th>{{ band.range }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for criterion in parsed_rubric.criteria %}
-                <tr>
-                    <td class="category-cell">
-                        {{ criterion.name }}
-                        {% if criterion.description %}
-                        <p class="criterion-question">{{ criterion.description }}</p>
-                        {% endif %}
-                    </td>
-                    <td class="weight-cell">{{ criterion.weighting }}%</td>
-                    {% for band in criterion.grade_bands %}
-                    <td class="descriptor-cell">{{ band.description }}</td>
-                    {% endfor %}
-                </tr>
+<!-- Rubric grid table -->
+<!-- table-responsive: adds horizontal scroll on small screens -->
+<div class="table-responsive mb-4">
+    <!-- table-bordered: borders on all cells -->
+    <!-- table-sm: compact padding -->
+    <table class="table table-bordered table-sm align-top">
+        <thead class="table-dark">
+            <tr>
+                <th style="min-width: 180px;">Category</th>
+                <th style="width: 50px;">Wt</th>
+                {% for band in parsed_rubric.criteria[0].grade_bands %}
+                <th style="min-width: 120px;">{{ band.range }}</th>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            </tr>
+        </thead>
+        <tbody>
+            {% for criterion in parsed_rubric.criteria %}
+            <!-- table-light on even rows for alternating colours -->
+            <tr class="{{ 'table-light' if loop.index is odd else '' }}">
+                <td>
+                    <strong>{{ criterion.name }}</strong>
+                    {% if criterion.description %}
+                    <p class="text-muted small fst-italic mt-1 mb-0">{{ criterion.description }}</p>
+                    {% endif %}
+                </td>
+                <td class="text-center fw-bold">{{ criterion.weighting }}%</td>
+                {% for band in criterion.grade_bands %}
+                <td class="small text-secondary">{{ band.description }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-    <div class="verify-actions">
-        <form method="POST" action="/rubric/confirm" style="display: inline;">
-            <input type="hidden" name="rubric_data" value="{{ rubric_json }}">
-            <input type="hidden" name="rubric_filename" value="{{ rubric_filename }}">
-            <input type="hidden" name="submission_folder" value="{{ submission_folder }}">
-            <button type="submit" class="btn btn-confirm">Confirm & Save Rubric</button>
-        </form>
-        <a href="/" class="btn btn-reject">Reject & Re-upload</a>
-    </div>
+<!-- Confirm / Reject buttons -->
+<div class="d-flex gap-3">
+    <form method="POST" action="/rubric/confirm">
+        <input type="hidden" name="rubric_data" value="{{ rubric_json }}">
+        <input type="hidden" name="rubric_filename" value="{{ rubric_filename }}">
+        <input type="hidden" name="submission_folder" value="{{ submission_folder }}">
+        <button type="submit" class="btn btn-success btn-lg">Confirm & save rubric</button>
+    </form>
+    <a href="/" class="btn btn-outline-danger btn-lg">Reject & re-upload</a>
 </div>
 {% endblock %}
