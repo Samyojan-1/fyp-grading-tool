@@ -3,7 +3,7 @@ Grading Routes
 --------------
 Handles display of grading results.
 """
-
+from services.export import export_results
 import os
 import json
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
@@ -112,4 +112,38 @@ def save_results():
     
     # Reload the page with updated results
     session['results_path'] = results_path
+    return redirect(url_for('grading.grading_page'))
+
+@grading_bp.route('/grading/export')
+def export_grading():
+    """Export grading results as PDF and Excel (FR-40)."""
+    results_path = session.get('results_path')
+    
+    if not results_path or not os.path.exists(results_path):
+        flash('No results to export. Please grade a report first.', 'error')
+        return redirect(url_for('upload.upload_page'))
+    
+    with open(results_path, 'r') as f:
+        results_data = json.load(f)
+    
+    # Get the submission folder from the results path
+    submission_folder = os.path.dirname(results_path)
+    
+    # Export both formats
+    export_result = export_results(results_data, submission_folder)
+    
+    # Check for errors
+    messages = []
+    if 'error' in export_result.get('excel', {}):
+        messages.append(f'Excel export failed: {export_result["excel"]["error"]}')
+    else:
+        messages.append(f'Excel exported successfully')
+    
+    if 'error' in export_result.get('pdf', {}):
+        messages.append(f'PDF export failed: {export_result["pdf"]["error"]}')
+    else:
+        messages.append(f'PDF exported successfully')
+    
+    flash(f'Export complete: {". ".join(messages)}. Files saved to submission folder.', 'success')
+    
     return redirect(url_for('grading.grading_page'))

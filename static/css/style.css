@@ -403,3 +403,18 @@ footer {
     min-height: 100px;
 }
 
+.btn-export {
+    background-color: #8e44ad;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.btn-export:hover {
+    background-color: #7d3c98;
+}
