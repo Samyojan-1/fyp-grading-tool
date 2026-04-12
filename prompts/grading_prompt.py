@@ -137,6 +137,7 @@ Return your response as a JSON object with this EXACT structure:
             "grade_band": "40-49",
             "feedback": "Constructive feedback referencing specific report content.",
             "evidence_location": "Sections/pages where evidence was found"
+            "confidence": "High/Medium/Low — how confident you are in this score. High = clear evidence strongly matches a band descriptor. Medium = evidence exists but could fit multiple bands. Low = limited evidence found, score is uncertain."
         }
     ],
     "overall_summary": "A holistic summary paragraph covering key strengths, areas for improvement, and overall submission quality",
