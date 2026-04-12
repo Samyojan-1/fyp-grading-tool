@@ -355,3 +355,51 @@ footer {
 .results-actions {
     margin-top: 20px;
 }
+
+/* Editable results */
+.edit-hint {
+    color: #888;
+    font-size: 0.9em;
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
+.score-input {
+    width: 70px;
+    padding: 4px 8px;
+    border: 2px solid #3498db;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: 600;
+    text-align: center;
+    color: #2c3e50;
+    background: white;
+}
+
+.score-input:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.feedback-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.95em;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.feedback-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.summary-input {
+    min-height: 100px;
+}
+

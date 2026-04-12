@@ -14,56 +14,134 @@
         {% endif %}
     {% endwith %}
 
+    <!-- Student info -->
     <div class="student-info">
         <p><strong>Student:</strong> {{ student.name }} ({{ student.number }})</p>
         <p><strong>Report:</strong> {{ student.report_filename }}</p>
     </div>
 
+    <!-- Overall score (FR-25) — updates dynamically when criteria scores change -->
     <div class="overall-score">
         <h3>Overall Score</h3>
         <div class="score-display">
-            <span class="big-score">{{ results.overall_score }}%</span>
-            <span class="grade-band-label">Grade Band: {{ results.overall_grade_band }}</span>
+            <span class="big-score" id="overall-score">{{ results.overall_score }}%</span>
+            <span class="grade-band-label" id="overall-band">Grade Band: {{ results.overall_grade_band }}</span>
         </div>
     </div>
 
-    <h3>Criterion Breakdown</h3>
-    {% for criterion in results.criteria_results %}
-    <div class="criterion-result">
-        <div class="criterion-result-header">
-            <h4>{{ criterion.criterion_name }}</h4>
-            <div class="criterion-scores">
-                <span class="criterion-score">{{ criterion.score }}%</span>
-                <span class="criterion-band">{{ criterion.grade_band }}</span>
-                {% if criterion.weighting %}
-                <span class="criterion-weight">Weight: {{ criterion.weighting }}%</span>
+    <!-- Save form wraps everything (FR-29) -->
+    <form method="POST" action="/grading/save" id="results-form">
+        <input type="hidden" name="results_path" value="{{ results_path }}">
+
+        <h3>Criterion Breakdown</h3>
+        <p class="edit-hint">Click on any score or feedback to edit. The overall score recalculates automatically.</p>
+
+        {% for criterion in results.criteria_results %}
+        <div class="criterion-result">
+            <div class="criterion-result-header">
+                <h4>{{ criterion.criterion_name }}</h4>
+                <div class="criterion-scores">
+                    <!-- Editable score input (FR-26) -->
+                    <input type="number" 
+                           class="score-input" 
+                           name="score_{{ loop.index0 }}" 
+                           value="{{ criterion.score }}" 
+                           min="0" max="100"
+                           data-weight="{{ criterion.weighting }}"
+                           onchange="recalculateOverall()">
+                    <span class="criterion-band" id="band_{{ loop.index0 }}">{{ criterion.grade_band }}</span>
+                    {% if criterion.weighting %}
+                    <span class="criterion-weight">Weight: {{ criterion.weighting }}%</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="criterion-feedback">
+                <!-- Editable feedback textarea (FR-27) -->
+                <textarea class="feedback-input" 
+                          name="feedback_{{ loop.index0 }}" 
+                          rows="3">{{ criterion.feedback }}</textarea>
+                {% if criterion.evidence_location %}
+                <p class="evidence-ref"><strong>Evidence found:</strong> {{ criterion.evidence_location }}</p>
                 {% endif %}
             </div>
+            <!-- Hidden fields to preserve other data -->
+            <input type="hidden" name="criterion_name_{{ loop.index0 }}" value="{{ criterion.criterion_name }}">
+            <input type="hidden" name="weighting_{{ loop.index0 }}" value="{{ criterion.weighting }}">
+            <input type="hidden" name="evidence_{{ loop.index0 }}" value="{{ criterion.evidence_location }}">
         </div>
-        <div class="criterion-feedback">
-            <p>{{ criterion.feedback }}</p>
-            {% if criterion.evidence_location %}
-            <p class="evidence-ref"><strong>Evidence found:</strong> {{ criterion.evidence_location }}</p>
-            {% endif %}
+        {% endfor %}
+
+        <input type="hidden" name="criteria_count" value="{{ results.criteria_results | length }}">
+
+        <!-- Plagiarism flags (FR-20) -->
+        {% if results.plagiarism_flags and results.plagiarism_flags != 'None detected' %}
+        <div class="plagiarism-section">
+            <h3>Plagiarism & Referencing Flags</h3>
+            <p>{{ results.plagiarism_flags }}</p>
         </div>
-    </div>
-    {% endfor %}
+        {% endif %}
 
-    {% if results.plagiarism_flags and results.plagiarism_flags != 'None detected' %}
-    <div class="plagiarism-section">
-        <h3>Plagiarism & Referencing Flags</h3>
-        <p>{{ results.plagiarism_flags }}</p>
-    </div>
-    {% endif %}
+        <!-- Overall summary (FR-21) — also editable -->
+        <div class="summary-section">
+            <h3>Overall Summary</h3>
+            <textarea class="feedback-input summary-input" 
+                      name="overall_summary" 
+                      rows="5">{{ results.overall_summary }}</textarea>
+        </div>
 
-    <div class="summary-section">
-        <h3>Overall Summary</h3>
-        <p>{{ results.overall_summary }}</p>
-    </div>
-
-    <div class="results-actions">
-        <a href="/" class="btn">Grade Another Report</a>
-    </div>
+        <!-- Actions -->
+        <div class="results-actions">
+            <button type="submit" class="btn btn-confirm">Save Final Result</button>
+            <a href="/" class="btn">Grade Another Report</a>
+        </div>
+    </form>
 </div>
-{% endblock %}
 
+<!-- JavaScript for auto-recalculating overall score (FR-28) -->
+<script>
+    function recalculateOverall() {
+        // Get all score inputs
+        const scoreInputs = document.querySelectorAll('.score-input');
+        
+        let totalWeightedScore = 0;
+        let totalWeight = 0;
+        
+        scoreInputs.forEach(function(input, index) {
+            const score = parseFloat(input.value) || 0;
+            const weight = parseFloat(input.dataset.weight) || 0;
+            
+            totalWeightedScore += score * weight;
+            totalWeight += weight;
+            
+            // Update the grade band display for this criterion
+            const bandSpan = document.getElementById('band_' + index);
+            if (bandSpan) {
+                bandSpan.textContent = getGradeBand(score);
+            }
+        });
+        
+        // Calculate overall
+        let overall = 0;
+        if (totalWeight > 0) {
+            overall = (totalWeightedScore / totalWeight).toFixed(1);
+        }
+        
+        // Update the display
+        document.getElementById('overall-score').textContent = overall + '%';
+        document.getElementById('overall-band').textContent = 'Grade Band: ' + getGradeBand(overall);
+    }
+    
+    function getGradeBand(score) {
+        // Returns the grade band for a given score
+        // These ranges match the rubric's grade bands
+        score = parseFloat(score);
+        if (score >= 80) return '80-100';
+        if (score >= 70) return '70-79';
+        if (score >= 60) return '60-69';
+        if (score >= 50) return '50-59';
+        if (score >= 40) return '40-49';
+        if (score >= 30) return '30-39';
+        return '0-29';
+    }
+</script>
+{% endblock %}
