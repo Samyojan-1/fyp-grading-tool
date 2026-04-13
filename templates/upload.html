@@ -81,8 +81,7 @@
                     <!-- Submit button -->
                     <!-- btn btn-primary: Bootstrap's blue button -->
                     <!-- w-100: width 100% (full width) -->
-                    <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-btn" 
-                            onclick="showLoading()">Start grading</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-btn">Start grading</button>
                 </form>
             </div>
         </div>
@@ -102,19 +101,15 @@
         }
     });
 
-    // Show loading overlay when form is submitted
-    function showLoading() {
-        // Small delay so the form actually submits before we change the button
-        setTimeout(function() {
-            // Disable the button so they can't click twice
-            const btn = document.getElementById('submit-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Grading in progress... please wait';
-            
-            // Show the overlay
-            document.getElementById('loading-overlay').style.display = 'flex';
-        }, 100);
-    }
+    // Show loading overlay when form is SUBMITTED (not clicked)
+    // The submit event only fires AFTER the browser validates required fields
+    // So if a field is empty, this never runs — the browser shows its error instead
+    document.querySelector('form').addEventListener('submit', function() {
+        const btn = document.getElementById('submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Grading in progress... please wait';
+        document.getElementById('loading-overlay').style.display = 'flex';
+    });
 </script>
 
 <!-- Loading overlay — hidden by default, shown when grading starts -->
