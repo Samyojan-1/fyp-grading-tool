@@ -70,10 +70,25 @@
         <input type="hidden" name="rubric_filename" value="{{ rubric_filename }}">
         <input type="hidden" name="submission_folder" value="{{ submission_folder }}">
         <input type="hidden" name="context_path" value="{{ context_path }}">
-        <button type="submit" class="btn btn-success btn-lg" id="confirm-btn"
-                onclick="this.disabled=true; this.innerHTML='<span class=\'spinner-border spinner-border-sm me-2\'></span>Saving rubric and grading...'; this.form.submit();">
-            Confirm & save rubric
-        </button>
+        <button type="submit" class="btn btn-success btn-lg" id="confirm-btn">Confirm & save rubric</button>
     <a href="/" class="btn btn-outline-danger btn-lg">Reject & re-upload</a>
 </div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; 
+     height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; 
+     flex-direction: column; align-items: center; justify-content: center;">
+    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+    <h4>Saving rubric and grading report...</h4>
+    <p class="text-muted">This typically takes 2-4 minutes. Please don't close this page.</p>
+</div>
+
+<script>
+    document.querySelector('form[action="/rubric/confirm"]').addEventListener('submit', function() {
+        document.getElementById('confirm-btn').disabled = true;
+        document.getElementById('confirm-btn').innerHTML = 
+            '<span class="spinner-border spinner-border-sm me-2"></span>Grading in progress...';
+        document.getElementById('loading-overlay').style.display = 'flex';
+    });
+</script>
 {% endblock %}
