@@ -165,11 +165,27 @@ def handle_upload():
         # This is a common trick — the JSON contains quotes that break HTML attributes
         rubric_json_b64 = base64.b64encode(json.dumps(parsed).encode()).decode()
         
+        # Save report text so we can grade after rubric confirmation
+        import json as json_module
+        report_text_for_later = result['text']
+        context_path = os.path.join(submission_folder, 'grading_context.tmp')
+        with open(context_path, 'w') as f:
+            json_module.dump({
+                'report_text': report_text_for_later,
+                'student_info': {
+                    'name': student_name,
+                    'number': student_number,
+                    'report_filename': report_filename,
+                    'submission_folder': submission_folder
+                }
+            }, f)
+
         return render_template('rubric_verify.html',
             parsed_rubric=parsed,
             rubric_json=rubric_json_b64,
             rubric_filename=rubric_filename,
-            submission_folder=submission_folder
+            submission_folder=submission_folder,
+            context_path=context_path
         )
     else:
         # Using a saved rubric — skip verification, go straight to grading (FR-11)
@@ -209,34 +225,60 @@ def handle_upload():
 def confirm_rubric():
     """
     Handle rubric confirmation (FR-11).
-    User has verified the parsed rubric and wants to save it.
+    Saves the rubric, then continues to grading if report data is available.
     """
     rubric_data = request.form.get('rubric_data')
     rubric_filename = request.form.get('rubric_filename')
     submission_folder = request.form.get('submission_folder')
+    context_path = request.form.get('context_path')
     
     if not rubric_data:
         flash('No rubric data received.', 'error')
         return redirect(url_for('upload.upload_page'))
     
-    # try:
-    #     parsed_rubric = json.loads(rubric_data)
     try:
-        # import base64
-        # Decode from base64 back to JSON string, then parse
         decoded = base64.b64decode(rubric_data.encode()).decode()
         parsed_rubric = json.loads(decoded)
-
-    except json.JSONDecodeError:
+    except Exception:
         flash('Invalid rubric data.', 'error')
         return redirect(url_for('upload.upload_page'))
     
     # Save the parsed rubric as JSON (FR-37)
     saved_filename = save_rubric(parsed_rubric, rubric_filename)
     
-    flash(f'Rubric "{parsed_rubric.get("rubric_name", "Unknown")}" saved successfully! '
-          f'It will now appear in the dropdown for future use.', 'success')
+    flash(f'Rubric "{parsed_rubric.get("rubric_name", "Unknown")}" saved successfully!', 'success')
     
-    # TODO: proceed to grading (Phase 4)
-    # For now, redirect back to upload
+    # If we have report context, continue straight to grading
+    if context_path and os.path.exists(context_path):
+        with open(context_path, 'r') as f:
+            context = json.load(f)
+        
+        report_text = context['report_text']
+        student_info = context['student_info']
+        
+        # Grade the report
+        grading_result = grade_report(report_text, parsed_rubric)
+        
+        if 'error' in grading_result:
+            flash(f'Grading failed: {grading_result["error"]}', 'error')
+            return redirect(url_for('upload.upload_page'))
+        
+        # Save results
+        results_data = {
+            'grading_result': grading_result,
+            'student_info': student_info
+        }
+        
+        results_path = os.path.join(submission_folder, 'grading_results.json')
+        with open(results_path, 'w') as f:
+            json.dump(results_data, f, indent=2)
+        
+        session['results_path'] = results_path
+        
+        # Clean up temp file
+        os.remove(context_path)
+        
+        return redirect(url_for('grading.grading_page'))
+    
+    # No report context — just go back to upload
     return redirect(url_for('upload.upload_page'))

@@ -69,8 +69,11 @@
         <input type="hidden" name="rubric_data" value="{{ rubric_json }}">
         <input type="hidden" name="rubric_filename" value="{{ rubric_filename }}">
         <input type="hidden" name="submission_folder" value="{{ submission_folder }}">
-        <button type="submit" class="btn btn-success btn-lg">Confirm & save rubric</button>
-    </form>
+        <input type="hidden" name="context_path" value="{{ context_path }}">
+        <button type="submit" class="btn btn-success btn-lg" id="confirm-btn"
+                onclick="this.disabled=true; this.innerHTML='<span class=\'spinner-border spinner-border-sm me-2\'></span>Saving rubric and grading...'; this.form.submit();">
+            Confirm & save rubric
+        </button>
     <a href="/" class="btn btn-outline-danger btn-lg">Reject & re-upload</a>
 </div>
 {% endblock %}
