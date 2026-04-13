@@ -112,8 +112,16 @@
     document.querySelector('form').addEventListener('submit', function() {
         const btn = document.getElementById('submit-btn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Grading in progress... please wait';
-        document.getElementById('loading-overlay').style.display = 'flex';
+        
+        // Only show the full loading overlay when using a saved rubric (actual grading)
+        // When uploading a new rubric, we just disable the button since the user
+        // needs to see the rubric verification page next
+        if (document.getElementById('rubric_choice').value === 'upload_new') {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Parsing rubric... please wait';
+        } else {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Grading in progress... please wait';
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
     });
 </script>
 
