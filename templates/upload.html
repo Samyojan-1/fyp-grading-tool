@@ -94,12 +94,17 @@
     const rubricUpload = document.getElementById('rubric-upload-group');
 
     rubricChoice.addEventListener('change', function() {
+        const rubricFileInput = document.getElementById('rubric');
         if (this.value === 'upload_new') {
             rubricUpload.style.display = 'block';
+            rubricFileInput.required = true;
         } else {
             rubricUpload.style.display = 'none';
+            rubricFileInput.required = false;
         }
     });
+    // Set initial state — rubric file is required by default since "Upload new" is selected
+    document.getElementById('rubric').required = true;
 
     // Show loading overlay when form is SUBMITTED (not clicked)
     // The submit event only fires AFTER the browser validates required fields
