@@ -161,11 +161,10 @@ def handle_upload():
         #     submission_folder=submission_folder
         # )
         import base64
-        # Encode the JSON as base64 to avoid quote/special character issues in HTML
-        # This is a common trick — the JSON contains quotes that break HTML attributes
+        # Encoding the JSON as base64 to avoid quote/special character issues in HTML
         rubric_json_b64 = base64.b64encode(json.dumps(parsed).encode()).decode()
         
-        # Save report text so we can grade after rubric confirmation
+        # Saving report text so we can grade after rubric confirmation
         import json as json_module
         report_text_for_later = result['text']
         context_path = os.path.join(submission_folder, 'grading_context.tmp')

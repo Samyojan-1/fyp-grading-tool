@@ -103,10 +103,10 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
                 # This is safe because JSON structure newlines are between keys/values,
                 # not inside quoted strings
                 import re
-                # Replace newlines that appear inside string values with spaces
+                # Replacing newlines that appear inside string values with spaces
                 # This regex finds content between quotes and replaces \n with space
                 cleaned = re.sub(r'\n', ' ', cleaned)
-                # Clean up any double/triple spaces that resulted
+                # Cleaning up any double/triple spaces that resulted
                 cleaned = re.sub(r' +', ' ', cleaned)
                 return json.loads(cleaned)
             except json.JSONDecodeError:
