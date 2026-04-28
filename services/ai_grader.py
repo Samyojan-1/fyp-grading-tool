@@ -13,7 +13,7 @@ IMPORTANT: GPT-5 models use a different API pattern than older models:
 
 Reference: https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/reasoning
 """
-
+import time
 import os
 import json
 from openai import OpenAI
@@ -39,103 +39,96 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
     """
     Send a prompt to Azure OpenAI GPT-5-mini and get a response.
     
-    Parameters:
-    - developer_prompt: instructions for the AI (replaces "system" role in older models)
-    - user_prompt: the actual question or data to process
-    - expect_json: if True, we try to parse the response as JSON (FR-38)
-    - reasoning_effort: "low", "medium", or "high" — controls how much the model
-                        "thinks" before answering. Higher = more accurate but slower/costlier.
-                        For rubric parsing we use "medium", for grading maybe "high".
+    Includes automatic retry with exponential backoff for rate limit
+    and timeout errors. Retries up to 3 times with doubling wait times
+    (2s, 4s, 8s) before giving up.
+    """    
+    max_retries = 3
+    base_wait = 2  # Starting wait time in seconds
     
-    Returns:
-    - The AI's response as a string (or parsed JSON dict if expect_json=True)
-    - Or a dict with 'error' key if something went wrong
-    """
-    try:
-        client = get_client()
-        
-        messages = [
-            {"role": "developer", "content": developer_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-        
-        response = client.chat.completions.create(
-            model=config.AZURE_DEPLOYMENT,
-            messages=messages,
-            max_completion_tokens=20000,  # Increased — reasoning tokens are hidden and count toward this
-            reasoning_effort=reasoning_effort
-        )
-        
-        # DEBUG: Print the full response details so we can see what's happening
-        # print("\n" + "="*50)
-        # print("DEBUG: Full API response details:")
-        # print(f"Finish reason: {response.choices[0].finish_reason}")
-        # print(f"Usage: {response.usage}")
-        # if hasattr(response.choices[0].message, 'refusal') and response.choices[0].message.refusal:
-        #     print(f"REFUSAL: {response.choices[0].message.refusal}")
-        # print("="*50 + "\n")
-        
-        result_text = response.choices[0].message.content
-        
-        # Check if content is None or empty
-        if not result_text:
-            return {
-                'error': f'AI returned empty response. Finish reason: {response.choices[0].finish_reason}. '
-                         f'This may be due to content filtering or token limits.'
-            }
-        
-        # If we expect JSON, try to parse it
-        if expect_json:
-            cleaned = result_text.strip()
-            if cleaned.startswith('```json'):
-                cleaned = cleaned[7:]
-            if cleaned.startswith('```'):
-                cleaned = cleaned[3:]
-            if cleaned.endswith('```'):
-                cleaned = cleaned[:-3]
-            cleaned = cleaned.strip()
+    for attempt in range(max_retries + 1):  # 0, 1, 2, 3 — first attempt + 3 retries
+        try:
+            client = get_client()
             
-            try:
-                # GPT-5 sometimes returns JSON with raw newlines inside string values
-                # (inherited from PDF text extraction line breaks)
-                # These break json.loads(), so we need to escape them properly
-                # We replace actual newline characters inside strings with spaces
-                # This is safe because JSON structure newlines are between keys/values,
-                # not inside quoted strings
-                import re
-                # Replacing newlines that appear inside string values with spaces
-                # This regex finds content between quotes and replaces \n with space
-                cleaned = re.sub(r'\n', ' ', cleaned)
-                # Cleaning up any double/triple spaces that resulted
-                cleaned = re.sub(r' +', ' ', cleaned)
-                return json.loads(cleaned)
-            except json.JSONDecodeError:
-                # print("\n" + "="*50)
-                # print("DEBUG: AI response that failed JSON parsing:")
-                # print("="*50)
-                # print(result_text)
-                # print("="*50)
-                # print(f"First 50 chars: {repr(result_text[:50])}")
-                # print(f"Last 50 chars: {repr(result_text[-50:])}")
-                # print("="*50 + "\n")
+            messages = [
+                {"role": "developer", "content": developer_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+            
+            response = client.chat.completions.create(
+                model=config.AZURE_DEPLOYMENT,
+                messages=messages,
+                max_completion_tokens=16000,
+                reasoning_effort=reasoning_effort
+            )
+            
+            # Debug output
+            print(f"\n{'='*50}")
+            print(f"DEBUG: API response (attempt {attempt + 1})")
+            print(f"Finish reason: {response.choices[0].finish_reason}")
+            print(f"Usage: {response.usage}")
+            print(f"{'='*50}\n")
+            
+            result_text = response.choices[0].message.content
+            
+            if not result_text:
                 return {
-                    'error': 'AI response was not valid JSON',
-                    'raw_response': result_text
+                    'error': f'AI returned empty response. Finish reason: {response.choices[0].finish_reason}.'
                 }
+            
+            if expect_json:
+                import re
+                cleaned = result_text.strip()
+                if cleaned.startswith('```json'):
+                    cleaned = cleaned[7:]
+                if cleaned.startswith('```'):
+                    cleaned = cleaned[3:]
+                if cleaned.endswith('```'):
+                    cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
+                
+                cleaned = re.sub(r'\n', ' ', cleaned)
+                cleaned = re.sub(r' +', ' ', cleaned)
+                
+                try:
+                    return json.loads(cleaned)
+                except json.JSONDecodeError:
+                    print(f"\nDEBUG: JSON parsing failed")
+                    print(f"First 100 chars: {repr(cleaned[:100])}")
+                    return {
+                        'error': 'AI response was not valid JSON',
+                        'raw_response': result_text
+                    }
+            
+            return result_text
         
-        return result_text
-    
-    except Exception as e:
-        error_msg = str(e)
-        
-        if '429' in error_msg:
-            return {'error': 'Rate limit exceeded. Please wait a moment and try again.'}
-        elif 'timeout' in error_msg.lower():
-            return {'error': 'Request timed out. The report may be too long. Please try again.'}
-        elif '401' in error_msg or 'auth' in error_msg.lower():
-            return {'error': 'Authentication failed. Check your Azure API key in .env file.'}
-        else:
-            return {'error': f'AI service error: {error_msg}'}
+        except Exception as e:
+            error_msg = str(e)
+            
+            # Check if this is a retryable error
+            is_rate_limit = '429' in error_msg
+            is_timeout = 'timeout' in error_msg.lower()
+            is_server_error = '500' in error_msg or '502' in error_msg or '503' in error_msg
+            
+            is_retryable = is_rate_limit or is_timeout or is_server_error
+            
+            if is_retryable and attempt < max_retries:
+                # Calculate wait time: 2, 4, 8 seconds
+                wait_time = base_wait * (2 ** attempt)
+                print(f"\n⚠️  API error (attempt {attempt + 1}/{max_retries + 1}): {error_msg}")
+                print(f"   Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
+                continue  # Go to next attempt
+            
+            # Either not retryable or we've exhausted retries
+            if is_rate_limit:
+                return {'error': f'Rate limit exceeded after {attempt + 1} attempts. Please wait a moment and try again.'}
+            elif is_timeout:
+                return {'error': f'Request timed out after {attempt + 1} attempts. The report may be too long.'}
+            elif '401' in error_msg or 'auth' in error_msg.lower():
+                return {'error': 'Authentication failed. Check your Azure API key in .env file.'}
+            else:
+                return {'error': f'AI service error: {error_msg}'}
         
 def map_sections(report_text, rubric_data):
     """
