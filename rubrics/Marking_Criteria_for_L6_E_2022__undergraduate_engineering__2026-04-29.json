@@ -2,9 +2,9 @@
   "rubric_name": "Marking Criteria for L6-E 2022 (undergraduate engineering)",
   "criteria": [
     {
-      "name": "Statement of project's context, aims and objectives",
+      "name": "Statement of\nproject\u2019s context,\naims and\nobjectives",
       "description": "To what extent are the problem topic and investigation well framed in the report? How challenging is the problem demonstrated to be?",
-      "weighting": 6.67,
+      "weighting": 6.6,
       "grade_bands": [
         {
           "range": "80\u2013100",
@@ -39,19 +39,19 @@
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "No statement or very generalised with vague aims or objectives. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "No statement or very generalised with vague aims or objectives. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Critical review of relevant literature",
+      "name": "Critical review of\nrelevant literature",
       "description": "How critical, relevant, comprehensive and current is the review? Are the sources demonstrated to be credible (or not)? Does the review incorporate all the relevant literature? Is irrelevant material left out?",
-      "weighting": 6.67,
+      "weighting": 6.7,
       "grade_bands": [
         {
           "range": "80\u2013100",
           "label": "80\u2013100",
-          "description": "Well-justifed critique of literature. Identifes faws, gaps or inconsistencies in extant knowledge."
+          "description": "Well-justified critique of literature. Identifies flaws, gaps or inconsistencies in extant knowledge."
         },
         {
           "range": "70\u201379",
@@ -76,19 +76,19 @@
         {
           "range": "30\u201339",
           "label": "30\u201339",
-          "description": "Superfcial review, misunderstanding the subject."
+          "description": "Superficial review, misunderstanding the subject."
         },
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "Zero or a few sources mentioned, but not reviewed. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "Zero or a few sources mentioned, but not reviewed. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Methodological approach",
-      "description": "To what extent does the report show that the methods used were appropriate, justifed and well applied? How well does the report describe and justify appropriate methodological tools/techniques deployed or considered for deployment?",
-      "weighting": 3.33,
+      "name": "Methodological\napproach",
+      "description": "To what extent does the report show that the methods used were appropriate, justified and well applied? How well does the report describe and justify appropriate methodological tools/techniques deployed or considered for deployment?",
+      "weighting": 3.3,
       "grade_bands": [
         {
           "range": "80\u2013100",
@@ -98,17 +98,17 @@
         {
           "range": "70\u201379",
           "label": "70\u201379",
-          "description": "Methodology well described, well applied and well justifed."
+          "description": "Methodology well described, well applied and well justified."
         },
         {
           "range": "60\u201369",
           "label": "60\u201369",
-          "description": "Credible justifcation for use."
+          "description": "Credible justification for use."
         },
         {
           "range": "50\u201359",
           "label": "50\u201359",
-          "description": "Appropriate methodology and life cycle used. Some justifcation for use."
+          "description": "Appropriate methodology and life cycle used. Some justification for use."
         },
         {
           "range": "40\u201349",
@@ -123,19 +123,19 @@
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "Little/no evidence of choice or use of method or life cycle. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "Little/no evidence of choice or use of method or life cycle. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Specifcation and discussion of the requirements (COMPULSORY)",
-      "description": "How well does the report describe and justify how the specifcation of the problem and its solution were arrived at? Does the report describe and explain the important requirements (and why they are important)? Are the requirements complete and consistent? Has the client approved them (implicitly or explicitly)?",
+      "name": "Specifcation and\ndiscussion of the\nrequirements\n(COMPULSORY)",
+      "description": "How well does the report describe and justify how the specification of the problem and its solution were arrived at? Does the report describe and explain the important requirements (and why they are important)? Are the requirements complete and consistent? Has the client approved them (implicitly or explicitly)?",
       "weighting": 10.0,
       "grade_bands": [
         {
           "range": "80\u2013100",
           "label": "80\u2013100",
-          "description": "Adds some new insight into requirements specifcation."
+          "description": "Adds some new insight into requirements specification."
         },
         {
           "range": "70\u201379",
@@ -145,7 +145,7 @@
         {
           "range": "60\u201369",
           "label": "60\u201369",
-          "description": "Relative importance of requirements is stated and justifed."
+          "description": "Relative importance of requirements is stated and justified."
         },
         {
           "range": "50\u201359",
@@ -165,12 +165,12 @@
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "No discernable requirements. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "No discernable requirements. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Analysis and discussion of the IT design (COMPULSORY)",
+      "name": "Analysis and\ndiscussion of the IT\ndesign\n(COMPULSORY)",
       "description": "How well does the report demonstrate how the solution was designed including design method(s), design process(es) and outcome(s) in areas such as system architectures, databases, user interfaces, interfaces to other systems, and other areas of IT?",
       "weighting": 10.0,
       "grade_bands": [
@@ -182,17 +182,17 @@
         {
           "range": "70\u201379",
           "label": "70\u201379",
-          "description": "Full justifcation and critique of design decisions in all areas."
+          "description": "Full justification and critique of design decisions in all areas."
         },
         {
           "range": "60\u201369",
           "label": "60\u201369",
-          "description": "Good justifcation of design decisions for most areas of development."
+          "description": "Good justification of design decisions for most areas of development."
         },
         {
           "range": "50\u201359",
           "label": "50\u201359",
-          "description": "Some justifcation of design decisions, for the signifcant areas of development."
+          "description": "Some justification of design decisions, for the significant areas of development."
         },
         {
           "range": "40\u201349",
@@ -202,17 +202,17 @@
         {
           "range": "30\u201339",
           "label": "30\u201339",
-          "description": "Poor use of design methods, with little/no justifcation. Design not adequately explained."
+          "description": "Poor use of design methods, with little/no justification. Design not adequately explained."
         },
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "No discernible design. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "No discernible design. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Discussion of implementation (COMPULSORY)",
+      "name": "Discussion of\nimplementation\n(COMPULSORY)",
       "description": "How well does the report describe and justify the decisions and trade-offs made, such as selection of algorithms, data structures, usability and implementation environments as appropriate?",
       "weighting": 10.0,
       "grade_bands": [
@@ -224,44 +224,44 @@
         {
           "range": "70\u201379",
           "label": "70\u201379",
-          "description": "Thorough justifcation of implementation decisions made AND evidence of problem solving."
+          "description": "Thorough justification of implementation decisions made AND evidence of problem solving."
         },
         {
           "range": "60\u201369",
           "label": "60\u201369",
-          "description": "Good justifcation of implementation decisions OR evidence of problem solving. Good command of techniques / tools used."
+          "description": "Good justification of implementation decisions OR evidence of problem solving. Good command of techniques / tools used."
         },
         {
           "range": "50\u201359",
           "label": "50\u201359",
-          "description": "Some justifcation of implementation decisions made, or good command of techniques / tools used."
+          "description": "Some justification of implementation decisions made, or good command of techniques / tools used."
         },
         {
           "range": "40\u201349",
           "label": "40\u201349",
-          "description": "Description of implementation without much justifcation or refection, or good command of techniques / tools."
+          "description": "Description of implementation without much justification or reflection, or good command of techniques / tools."
         },
         {
           "range": "30\u201339",
           "label": "30\u201339",
-          "description": "Superfcial description of implementation."
+          "description": "Superficial description of implementation."
         },
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "Little/no description of implementation. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "Little/no description of implementation. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Discussion of verifcation and validation",
-      "description": "How well does the report describe and justify the approach(es) to verifcation and validation at each stage of the project, including testing and debugging?",
-      "weighting": 3.33,
+      "name": "Discussion of\nverifcation and\nvalidation",
+      "description": "How well does the report describe and justify the approach(es) to verification and validation at each stage of the project, including testing and debugging?",
+      "weighting": 3.3,
       "grade_bands": [
         {
           "range": "80\u2013100",
           "label": "80\u2013100",
-          "description": "Tests well planned AND critical discussion of results and remedial actions taken."
+          "description": "Tests well planned AND critical discussion."
         },
         {
           "range": "70\u201379",
@@ -271,12 +271,12 @@
         {
           "range": "60\u201369",
           "label": "60\u201369",
-          "description": "Justifcation of approaches used in most areas."
+          "description": "Good justification of approaches used in most areas."
         },
         {
           "range": "50\u201359",
           "label": "50\u201359",
-          "description": "Some justifcation of approaches used for testing and debugging."
+          "description": "Some justification of approaches used for testing and debugging."
         },
         {
           "range": "40\u201349",
@@ -286,19 +286,19 @@
         {
           "range": "30\u201339",
           "label": "30\u201339",
-          "description": "Superfcial description of testing and debugging."
+          "description": "Superficial description of testing and debugging."
         },
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "Little/no evidence of testing or debugging having been carried out. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "Little/no evidence of testing or debugging having been carried out. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Evaluation against requirements (COMPULSORY)",
-      "description": "How well does the report describe and justify the means by which the outcome of the project was evaluated? How well is it shown whether the specifcation of the requirements has been satisfed? How well explained are areas where it hasn\u2019t?",
-      "weighting": 6.67,
+      "name": "Evaluation against\nrequirements\n(COMPULSORY)",
+      "description": "How well does the report describe and justify the means by which the outcome of the project was evaluated? How well is it shown whether the specification of the requirements has been satisfied? How well explained are areas where it hasn\u2019t?",
+      "weighting": 6.7,
       "grade_bands": [
         {
           "range": "80\u2013100",
@@ -313,7 +313,7 @@
         {
           "range": "60\u201369",
           "label": "60\u201369",
-          "description": "Justifcation of evaluation method."
+          "description": "Justification of evaluation method."
         },
         {
           "range": "50\u201359",
@@ -328,24 +328,24 @@
         {
           "range": "30\u201339",
           "label": "30\u201339",
-          "description": "Some superfcial evaluation carried out, but without evidence of planning or purpose."
+          "description": "Some superficial evaluation carried out, but without evidence of planning or purpose."
         },
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "Little/no evidence of evaluation having been planned or carried out. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "Little/no evidence of evaluation having been planned or carried out. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Evidence of project planning and management",
+      "name": "Evidence of project\nplanning and\nmanagement",
       "description": "How well does the report demonstrate the preparation of an overall project plan with time-scales, resources, and a work schedule? How well does the report show evidence that it has been followed and explain deviations from it? Has an appropriate project management methodology been adopted?",
-      "weighting": 3.33,
+      "weighting": 3.3,
       "grade_bands": [
         {
           "range": "80\u2013100",
           "label": "80\u2013100",
-          "description": "Develops a novel and well-justifed approach to project planning and management."
+          "description": "Develops a novel and well-justified approach to project planning and management."
         },
         {
           "range": "70\u201379",
@@ -375,14 +375,14 @@
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "No management of project evident. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "No management of project evident. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Attributes of the solution",
-      "description": "Based on the demonstration of the artefact(s) and/or the evidence of the artefact(s) presented in the report or its appendices, how well do they show the quality of the artefact(s), e.g. attributes such as reliability, timeliness, maintainability, completeness, and consistency?",
-      "weighting": 16.67,
+      "name": "Attributes of the\nsolution",
+      "description": "Based on the demonstration of the artefact(s) and/or the evidence of the artefact(s) presented in the report or its appendices, how well do they show the quality of the artefact(s), e.g. attributes such as reliability, timeliness, maintainability, completeness, and consistency? An artefact may be a piece of software, hardware or a detailed design for one.",
+      "weighting": 16.7,
       "grade_bands": [
         {
           "range": "80\u2013100",
@@ -407,7 +407,7 @@
         {
           "range": "40\u201349",
           "label": "40\u201349",
-          "description": "Artefact implements minimum functionality compared with expectation or has signifcant bugs."
+          "description": "Artefact implements minimum functionality compared with expectation or has significant bugs."
         },
         {
           "range": "30\u201339",
@@ -417,14 +417,14 @@
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "Artefact is substantially incomplete. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "Artefact is substantially incomplete. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Summary, conclusions and recommendations",
+      "name": "Summary,\nconclusions and\nrecommendations",
       "description": "To what extent are the conclusions and recommendations appropriate, original and supported by the report? How well are the outcomes of the project summarised? Are the conclusions based on analysis and understanding rather than being trite?",
-      "weighting": 6.67,
+      "weighting": 6.7,
       "grade_bands": [
         {
           "range": "80\u2013100",
@@ -439,7 +439,7 @@
         {
           "range": "60\u201369",
           "label": "60\u201369",
-          "description": "Conclusions all valid and relate well to all the objectives. Recommendations are valid with some justifcation."
+          "description": "Conclusions all valid and relate well to all the objectives. Recommendations are valid with some justification."
         },
         {
           "range": "50\u201359",
@@ -454,19 +454,19 @@
         {
           "range": "30\u201339",
           "label": "30\u201339",
-          "description": "Work attempts to address the question/problem but is substantially incomplete and defcient."
+          "description": "Work attempts to address the question/problem but is substantially incomplete and deficient."
         },
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "No serious attempt made to address the question or problem and/or shows a serious misunderstanding of the requirements of the task. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "No serious attempt made to address the question or problem and/or shows a serious misunderstanding of the requirements of the task. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Structure and presentation",
+      "name": "Structure and\npresentation",
       "description": "How well presented is the report in terms of quality of prose style; page layout; appropriate division into chapters, sections and sub-sections; use of graphics and tables; punctuation, spelling, grammar and syntax; ease of reading; enjoyability of reading?",
-      "weighting": 6.67,
+      "weighting": 6.7,
       "grade_bands": [
         {
           "range": "80\u2013100",
@@ -501,19 +501,19 @@
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "Acutely defcient in all aspects. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "Acutely deficient in all aspects. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     },
     {
-      "name": "Overall understanding and refection",
+      "name": "Overall\nunderstanding and\nrefection",
       "description": "In all categories, does the report show clearly and explicitly that the student has understood the material presented and the techniques used? Does the student demonstrate appreciation of the strengths and weaknesses of the approach(es) used?",
       "weighting": 10.0,
       "grade_bands": [
         {
           "range": "80\u2013100",
           "label": "80\u2013100",
-          "description": "Likely to add new insights to the topic. Approaches the quality of published material."
+          "description": "Likely to add new insights to the topic. Approach the quality of published material."
         },
         {
           "range": "70\u201379",
@@ -538,15 +538,15 @@
         {
           "range": "30\u201339",
           "label": "30\u201339",
-          "description": "FAIL. Anything which is inadequate in most or all of the following: length, content, structure, analysis, expression, argument, relevance, research and presentation. Work in this range attempts to address the question / problem but is substantially incomplete and defcient."
+          "description": "FAIL. Anything, which is inadequate in most or all of the following: length, content, structure, analysis, expression, argument, relevance, research and presentation. Work in this range attempts to address the question / problem but is substantially incomplete and deficient."
         },
         {
           "range": "0\u201329",
           "label": "0\u201329",
-          "description": "FAIL. No serious attempt to address the question or problem, and/or manifests a serious misunderstanding of the requirements of the assignment. Acutely defcient in all aspects. 20-29 indicates a superfcial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
+          "description": "FAIL. No serious attempt to address the question or problem, and/or manifests a serious misunderstanding of the requirements of the assignment. Acutely deficient in all aspects. 20-29 indicates a superficial, cursory or casual approach. 10-19 indicates an unintelligible, meaningless or indecipherable report. 1-9 indicates little or no evidence of any work being done. 0 is reserved for non-submission."
         }
       ]
     }
   ],
-  "total_weighting": 100.01
+  "total_weighting": 100
 }
