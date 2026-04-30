@@ -57,15 +57,8 @@
                        onchange="recalculateOverall()">
                 <!-- Grade band badge -->
                 <span class="badge bg-secondary" id="band_{{ loop.index0 }}">{{ criterion.grade_band }}</span>
-                {% if criterion.weighting %}
-                <span class="text-muted small">Wt: {{ criterion.weighting }}%</span>
-                {% endif %}
-                
-                <span class="badge bg-secondary" id="band_{{ loop.index0 }}">{{ criterion.grade_band }}</span>
                 {% if criterion.confidence %}
-                <!-- Confidence badge (FR-22/23) -->
-                <!-- bg-success = green for High, bg-warning = yellow for Medium, bg-danger = red for Low -->
-                <span class="badge 
+                <span class="badge
                     {% if criterion.confidence == 'High' %}bg-success
                     {% elif criterion.confidence == 'Medium' %}bg-warning text-dark
                     {% else %}bg-danger
@@ -98,12 +91,10 @@
     <input type="hidden" name="criteria_count" value="{{ results.criteria_results | length }}">
 
     <!-- Plagiarism flags -->
-    {% if results.plagiarism_flags and results.plagiarism_flags != 'None detected' %}
     <div class="alert alert-warning">
         <h6 class="alert-heading">Plagiarism & referencing flags</h6>
-        <p class="mb-0">{{ results.plagiarism_flags }}</p>
+        <p class="mb-0">{{ results.plagiarism_flags or 'None detected' }}</p>
     </div>
-    {% endif %}
 
     <!-- Overall summary -->
     <div class="card shadow-sm mb-4">

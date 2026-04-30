@@ -210,7 +210,12 @@ def grade_report(report_text, rubric_data):
     
     if 'criteria_results' not in result:
         return {'error': 'AI response missing criteria_results'}
-    
+
+    result.setdefault('plagiarism_flags', 'None detected')
+
+    for criterion in result['criteria_results']:
+        criterion.setdefault('confidence', 'High')
+
     # Store the mapping in the result for traceability (FR-13)
     result['section_mapping'] = section_mapping
     

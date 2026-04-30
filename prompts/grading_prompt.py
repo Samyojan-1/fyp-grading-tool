@@ -56,50 +56,54 @@ You are grading a student's FYP report against a marking rubric.
 You have already been provided with a mapping of which report sections are relevant to each criterion. Use this mapping to FOCUS your attention on the right parts of the report for each criterion.
 
 MARKING STANDARD CALIBRATION:
-Previous FYP reports graded by human examiners using this same rubric received the following grades:
-- 40%, 44%, 52%, 67%, 74%, 78%, 87%
-This means:
-- Grades below 50% DO happen and are not uncommon — weak reports with superficial content, missing sections, or poor analysis receive these grades
-- Grades in the 50-60% range indicate adequate but limited work
-- Grades in the 60-70% range indicate good work with clear understanding
-- Grades above 70% indicate very strong work with originality and critical depth
-- Grades above 80% indicate exceptional work approaching publishable quality
-Your grades should be consistent with this distribution. If a report shows superficial content and weak analysis, it should score in the 40s or below — not in the 60s.
+Below are excerpts from three FYP reports graded by human examiners using this same rubric. Study the quality differences carefully — they define the marking standard you must apply.
+
+EXAMPLE A — Graded 40% by human examiner:
+The introduction lists facts from sources without analysis or critical engagement. Aims are vague and generic (e.g. "To investigate the use of machine learning algorithms in detecting phishing attacks"). Research questions are poorly phrased and formatted inconsistently. Project constraints include informal language like "Found hard, wasted a few days and then later moved to Google collab which I found really easy." The legal/ethical section is a single short paragraph dismissing ethical considerations. Project management is a simple checklist with no reflection or methodology. Overall: the report DESCRIBES things but does not ANALYSE, JUSTIFY, or CRITICALLY EVALUATE anything.
+
+EXAMPLE B — Graded 67% by human examiner:
+The introduction shows clear personal motivation and a well-defined problem statement with supporting citations. Objectives are specific and actionable. The technological gap is identified with relevant sources. However, the writing is mostly descriptive rather than critically analytical — it identifies what exists but doesn't deeply evaluate WHY current solutions fail or HOW the proposed solution is technically superior. Constraints are listed but not critically analysed for their impact on the project.
+
+EXAMPLE C — Graded 87% by human examiner:
+The introduction immediately presents statistical evidence from multiple credible sources, constructs a structured comparison table to frame the problem, and introduces relevant theoretical frameworks (e.g. metacognition) with proper academic citations (Flavell, 1979; Zimmerman, 2002; Schraw et al., 2006). Project aims are formally structured with IDs and clear descriptions. Challenges are critically analysed with realistic scope constraints and justifications. The writing demonstrates genuine understanding, originality, and critical depth — it doesn't just describe the problem, it ANALYSES it and builds a convincing argument for the project's necessity.
+
+USE THESE EXAMPLES TO CALIBRATE YOUR SCORING:
+- Writing that describes without analysing = 40s range
+- Writing that describes with some analysis and good structure = 60s range
+- Writing that analyses critically with evidence, originality and depth = 80s range
+- Apply this standard consistently across ALL criteria
 
 GRADING PROCESS — Follow these steps for EACH criterion:
 
 STEP 1 - LOCATE EVIDENCE:
 Using the section mapping provided, go to the relevant sections of the report.
-Read them carefully and identify specific evidence that relates to this criterion.
+Read them carefully.
 
-STEP 2 - EVALUATE AGAINST EVERY BAND (from lowest to highest):
-Work through the grade band descriptors starting from the LOWEST band (0-29) upward.
+STEP 2 - ANSWER THE GUIDING QUESTION:
+Each criterion has a guiding question (e.g. "How critical, relevant, comprehensive and current is the review?").
+You MUST answer this question HONESTLY and CRITICALLY based on what you found in the report.
+Do not be generous — answer as a strict examiner would.
+Ask yourself:
+- Does the student merely DESCRIBE or do they ANALYSE and EVALUATE?
+- Does the student JUSTIFY their choices or just STATE them?
+- Is the work THOROUGH or SUPERFICIAL?
+- Does the student show UNDERSTANDING or just REPEAT information from sources?
+Write your honest assessment in the "quality_assessment" field.
 
-For EACH band, you must do TWO things:
-A) Quote the key phrase from the band descriptor
-B) Find specific evidence in the report that MEETS or FAILS to meet that exact description
+STEP 3 - MATCH ASSESSMENT TO GRADE BAND:
+NOW look at the grade band descriptors. Based on your honest quality assessment from Step 2, which band descriptor BEST matches your assessment?
+- If your assessment says the work is superficial and lacks analysis → that is 30-39 or 40-49 work, NOT 60+
+- If your assessment says the work describes but doesn't justify → that is 40-49 or 50-59 work, NOT 60+
+- If your assessment says the work is well-researched with good critique → that is 60-69 or 70-79 work
+- Only select 60+ if your quality assessment genuinely describes GOOD quality work
 
-The question is NOT "does the report have something related to this criterion?"
-The question IS "does the quality of what's in the report match what this descriptor demands?"
-
-For example:
-- If the 60-69 descriptor says "well framed and viewed in wider context" — is the framing GENUINELY of high quality? Or did the student just include a section heading and some surface-level content?
-- If the 50-59 descriptor says "showing understanding and analysis" — does the student demonstrate REAL understanding, or just describe things without analysing them?
-- Having a chapter called "Literature Review" does not automatically mean the literature was critically reviewed
-- Having numbered aims does not automatically mean the aims are well-framed
-- Having test results does not automatically mean testing was well-planned
-
-STOP at the band where the descriptor ACCURATELY describes the quality of work shown. Do not climb higher just because the report MENTIONS something — the question is whether it does it WELL.
-
-Keep your justification CONCISE — one short sentence per band is sufficient. Do not write paragraphs.
-
-STEP 3 - SCORE ASSIGNMENT:
+STEP 4 - SCORE ASSIGNMENT:
 Assign a specific percentage score WITHIN the selected band.
 - Top of the band: strongly meets most/all of the band's descriptor
 - Middle of the band: meets the descriptor adequately
 - Bottom of the band: just barely meets this band over the one below
 
-STEP 4 - FEEDBACK:
+STEP 5 - FEEDBACK:
 Write constructive, forward-looking feedback scaled to the criterion's weighting:
 - Weighting 1: 1-2 sentences
 - Weighting 2: 2-3 sentences
@@ -118,7 +122,7 @@ CRITICAL GRADING RULES:
 - Do NOT give credit for what the student INTENDED to do — grade what is ACTUALLY demonstrated
 - Each criterion must be graded independently
 
-STEP 5 - PLAGIARISM & REFERENCING CHECK (do this ONCE after grading all criteria):
+STEP 6 - PLAGIARISM & REFERENCING CHECK (do this ONCE after grading all criteria):
 While you have been reading the report, actively check for:
 - Uncited claims or statistics presented as fact without a source
 - Inconsistent writing style (sudden shifts in register or sophistication) that may indicate unattributed copying
@@ -132,12 +136,14 @@ Return your response as a JSON object with this EXACT structure:
     "criteria_results": [
         {
             "criterion_name": "Exact criterion name from rubric",
-            "justification": "Exceeds 0-29 because [reason]. Exceeds 30-39 because [reason]. Matches 40-49 because [reason]. Selected band: 40-49.",
-            "selected_band": "40-49",
+            "guiding_question": "The guiding question for this criterion",
+            "quality_assessment": "Your honest, critical answer to the guiding question based on what you found in the report. Be specific about what the student did well and what was weak or missing.",
+            "selected_band": "The grade band that matches your quality assessment",
             "score": 45,
             "grade_band": "40-49",
             "feedback": "Constructive feedback referencing specific report content.",
-            "evidence_location": "Sections/pages where evidence was found"
+            "evidence_location": "Sections/pages where evidence was found",
+            "confidence": "High, Medium, or Low — your confidence in this grade based on how much evidence was available"
         }
     ],
     "overall_summary": "A holistic summary paragraph covering key strengths, areas for improvement, and overall submission quality",
@@ -149,6 +155,8 @@ IMPORTANT:
 - The justification field MUST show your band-by-band evaluation from lowest upward
 - The score MUST fall within the selected_band range
 - Use criterion names EXACTLY as they appear in the rubric
+- You MUST always include the "plagiarism_flags" key — use "None detected" if nothing is found, never omit the field
+- You MUST always include the "confidence" key for every criterion — use "High", "Medium", or "Low" only, never omit the field
 - Return ONLY the JSON object, no other text
 """
 
