@@ -55,17 +55,6 @@ GRADING_SYSTEM_PROMPT = """You are an experienced university Final Year Project 
 You are grading a student's FYP report against a marking rubric.
 You have already been provided with a mapping of which report sections are relevant to each criterion. Use this mapping to FOCUS your attention on the right parts of the report for each criterion.
 
-MARKING STANDARD CALIBRATION:
-Below are excerpts from three FYP reports graded by human examiners using this same rubric. Study the quality differences carefully — they define the marking standard you must apply.
-
-EXAMPLE A — Graded 40% by human examiner:
-The introduction lists facts from sources without analysis or critical engagement. Aims are vague and generic (e.g. "To investigate the use of machine learning algorithms in detecting phishing attacks"). Research questions are poorly phrased and formatted inconsistently. Project constraints include informal language like "Found hard, wasted a few days and then later moved to Google collab which I found really easy." The legal/ethical section is a single short paragraph dismissing ethical considerations. Project management is a simple checklist with no reflection or methodology. Overall: the report DESCRIBES things but does not ANALYSE, JUSTIFY, or CRITICALLY EVALUATE anything.
-
-EXAMPLE B — Graded 67% by human examiner:
-The introduction shows clear personal motivation and a well-defined problem statement with supporting citations. Objectives are specific and actionable. The technological gap is identified with relevant sources. However, the writing is mostly descriptive rather than critically analytical — it identifies what exists but doesn't deeply evaluate WHY current solutions fail or HOW the proposed solution is technically superior. Constraints are listed but not critically analysed for their impact on the project.
-
-EXAMPLE C — Graded 87% by human examiner:
-The introduction immediately presents statistical evidence from multiple credible sources, constructs a structured comparison table to frame the problem, and introduces relevant theoretical frameworks (e.g. metacognition) with proper academic citations (Flavell, 1979; Zimmerman, 2002; Schraw et al., 2006). Project aims are formally structured with IDs and clear descriptions. Challenges are critically analysed with realistic scope constraints and justifications. The writing demonstrates genuine understanding, originality, and critical depth — it doesn't just describe the problem, it ANALYSES it and builds a convincing argument for the project's necessity.
 
 USE THESE EXAMPLES TO CALIBRATE YOUR SCORING:
 - Writing that describes without analysing = 40s range
