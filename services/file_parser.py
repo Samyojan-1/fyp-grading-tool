@@ -22,14 +22,31 @@ def extract_text_from_pdf(file_path):
     try:
         import pymupdf4llm
         import fitz  # Still need this for page count and scanned PDF detection
-        
-        # Extract as Markdown — this is the main advantage over plain fitz
+
+        # Fast pre-check for scanned PDFs using plain fitz (FR-04)
+        # pymupdf4llm.to_markdown is very slow on scanned PDFs because it processes
+        # page images — this check avoids that by using fitz.get_text() which is instant.
+        doc = fitz.open(file_path)
+        page_count = len(doc)
+        quick_text = "".join(page.get_text() for page in doc)
+        doc.close()
+
+        avg_chars_per_page = len(quick_text.strip()) / max(page_count, 1)
+        if avg_chars_per_page < 50:
+            return {
+                'text': '',
+                'pages': [],
+                'page_count': page_count,
+                'is_scanned': True
+            }
+
+        # PDF has extractable text — proceed with pymupdf4llm for rich Markdown output
         # page_chunks=True gives us the text broken down by page
         md_pages = pymupdf4llm.to_markdown(file_path, page_chunks=True)
-        
+
         pages = []
         full_text = ""
-        
+
         for i, page_data in enumerate(md_pages):
             page_text = page_data['text']
             pages.append({
@@ -37,16 +54,12 @@ def extract_text_from_pdf(file_path):
                 'text': page_text
             })
             full_text += page_text + "\n"
-        
-        # Detect scanned PDFs (FR-04)
-        avg_chars_per_page = len(full_text.strip()) / max(len(pages), 1)
-        is_scanned = avg_chars_per_page < 50
-        
+
         return {
             'text': full_text.strip(),
             'pages': pages,
             'page_count': len(pages),
-            'is_scanned': is_scanned
+            'is_scanned': False
         }
     
     except Exception as e:
