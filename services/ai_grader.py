@@ -274,8 +274,11 @@ def calculate_overall_score(grading_result, rubric_data):
     else:
         overall_score = 0
     
-    # Determine grade band from rubric's actual bands
-    grade_bands = rubric_data['criteria'][0].get('grade_bands', [])
+    # Determine grade band from rubric's actual bands — use the first criterion that has bands
+    grade_bands = next(
+        (c.get('grade_bands', []) for c in rubric_data['criteria'] if c.get('grade_bands')),
+        []
+    )
     overall_band = "Unknown"
     for band in grade_bands:
         band_range = band['range'].replace('–', '-')
