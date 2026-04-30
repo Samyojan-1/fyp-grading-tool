@@ -5,6 +5,10 @@
 {% block content %}
 <h2 class="mb-4">Grading results</h2>
 
+<div class="alert alert-info py-2 mb-4">
+    <small><strong>Disclaimer:</strong> AI-generated scores and feedback are indicative only and may not be fully accurate. All results should be reviewed and confirmed by a qualified marker before use.</small>
+</div>
+
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
