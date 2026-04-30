@@ -201,7 +201,7 @@ def handle_upload():
             flash(f'Grading failed: {grading_result["error"]}', 'error')
             return redirect(url_for('upload.upload_page'))
         
-        # # Store results in session for the results page (NFR-23)
+        # # Storing results in session for the results page 
         # session['grading_result'] = grading_result
         # session['student_info'] = {
         #     'name': student_name,
@@ -210,7 +210,7 @@ def handle_upload():
         #     'submission_folder': submission_folder
         # }
 
-        # Save results to file (session cookies are too small)
+        # Saving results to file as session cookies are too small
         results_data = {
             'grading_result': grading_result,
             'student_info': {
