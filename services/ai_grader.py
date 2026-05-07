@@ -21,7 +21,7 @@ def get_client():
 
 def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="medium"):
     """
-    Send a prompt to Azure and get a response.
+    Send a prompt to Azure (in the form of developer (instructions) and user (content) prompts) and get a response.
     
     Includes automatic retry with exponential backoff for rate limit
     and timeout errors. Retries up to 3 times with doubling wait times
