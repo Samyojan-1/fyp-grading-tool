@@ -42,7 +42,7 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
             response = client.chat.completions.create(
                 model=config.AZURE_DEPLOYMENT,
                 messages=messages,
-                max_completion_tokens=16000,
+                max_completion_tokens=32000,
                 reasoning_effort=reasoning_effort
             )
             

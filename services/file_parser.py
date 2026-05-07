@@ -35,7 +35,8 @@ def extract_text_from_pdf(file_path):
         full_text = ""
 
         for i, page_data in enumerate(md_pages):
-            page_text = page_data['text']
+            # page_text = page_data['text']
+            page_text = page_data['text'].replace('<br>', ' ').replace('<br/>', ' ').replace('<br />', ' ')            
             pages.append({
                 'page_number': i + 1,
                 'text': page_text
