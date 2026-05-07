@@ -6,7 +6,6 @@
 <div class="row justify-content-center">
     <!-- row + justify-content-center: centers the column horizontally -->
     <!-- col-lg-7: takes 7 out of 12 columns on large screens -->
-    <!-- Bootstrap uses a 12-column grid system -->
     <div class="col-lg-7">
         
         <h2 class="mb-1">Upload submission</h2>
@@ -16,7 +15,7 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <!-- Bootstrap alert classes: alert-danger (red), alert-success (green) -->
+                    <!-- Bootstrap alerts: danger for red, success for green -->
                     <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
                         {{ message }}
                         <!-- Dismiss button — Bootstrap handles closing the alert -->
@@ -103,19 +102,17 @@
             rubricFileInput.required = false;
         }
     });
-    // Set initial state — rubric file is required by default since "Upload new" is selected
+    // Set initial state. rubric file is required by default since "Upload new" is selected
     document.getElementById('rubric').required = true;
 
     // Show loading overlay when form is SUBMITTED (not clicked)
     // The submit event only fires AFTER the browser validates required fields
-    // So if a field is empty, this never runs — the browser shows its error instead
+    // So if a field is empty, this never runs. the browser shows its error instead
     document.querySelector('form').addEventListener('submit', function() {
         const btn = document.getElementById('submit-btn');
         btn.disabled = true;
         
         // Only show the full loading overlay when using a saved rubric (actual grading)
-        // When uploading a new rubric, we just disable the button since the user
-        // needs to see the rubric verification page next
         if (document.getElementById('rubric_choice').value === 'upload_new') {
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Parsing rubric... please wait';
         } else {
@@ -125,7 +122,7 @@
     });
 </script>
 
-<!-- Loading overlay — hidden by default, shown when grading starts -->
+<!-- Loading overlay, hidden by default, shown when grading starts -->
 <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; 
      height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; 
      flex-direction: column; align-items: center; justify-content: center;">

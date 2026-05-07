@@ -1,9 +1,6 @@
 """
-Export Service
---------------
-Generates PDF and Excel exports of grading results (FR-40).
-Exported files are saved to the submission folder with
-consistent naming conventions (FR-30).
+Generates PDF and Excel exports of grading results.
+Exported files are saved to the submission folder with consistent naming conventions.
 """
 
 import os
@@ -19,14 +16,14 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 def export_to_excel(results_data, output_path):
     """
-    Export grading results to an Excel file (FR-40).
+    Export grading results to an Excel file.
     
     The Excel file contains:
     - Student info at the top
     - Per-criterion breakdown with scores, bands, and feedback
     - Overall score at the bottom
     
-    Compatible with Microsoft Excel (NFR-16).
+    Compatible with Microsoft Excel.
     """
     try:
         wb = Workbook()
@@ -119,7 +116,7 @@ def export_to_excel(results_data, output_path):
             if row_fill.fill_type:
                 cell.fill = row_fill
             
-            # Column 2: Weighting (NUMBER, not string)
+            # Column 2: Weighting (NUMBER)
             # We store the raw number and format the cell to show %
             cell = ws.cell(row=row, column=2, value=criterion.get('weighting', 0))
             cell.font = normal_font
@@ -138,7 +135,7 @@ def export_to_excel(results_data, output_path):
             if row_fill.fill_type:
                 cell.fill = row_fill
             
-            # Column 4: Grade band (text — this stays as string since it's a range like "60-69")
+            # Column 4: Grade band (text; string because it's a range like "60-69")
             cell = ws.cell(row=row, column=4, value=criterion.get('grade_band', ''))
             cell.font = normal_font
             cell.alignment = Alignment(horizontal='center', vertical='top')
@@ -196,12 +193,8 @@ def export_to_excel(results_data, output_path):
 
 
 def export_to_pdf(results_data, output_path):
-    """
-    Export grading results to a PDF file (FR-40).
     
-    Uses ReportLab to generate a professional-looking PDF
-    with student info, scores, feedback, and summary.
-    """
+    # Export grading results to a PDF file.
     try:
         student = results_data['student_info']
         results = results_data['grading_result']
@@ -358,16 +351,14 @@ def export_to_pdf(results_data, output_path):
 
 def export_results(results_data, submission_folder):
     """
-    Export results as both PDF and Excel (FR-40).
-    
-    Files are saved to the submission folder with consistent naming (FR-30).
-    Returns paths to both files.
+    Export results as both PDF and Excel.
+    Files are saved to the submission folder with consistent naming.
     """
     student = results_data['student_info']
     student_number = student.get('number', 'UNKNOWN')
     student_name = student.get('name', 'Unknown').replace(' ', '_')
     
-    # Consistent naming convention (FR-30)
+    # Consistent naming convention
     base_name = f"{student_number}_{student_name}_results"
     
     excel_path = os.path.join(submission_folder, f"{base_name}.xlsx")

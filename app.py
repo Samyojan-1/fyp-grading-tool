@@ -4,20 +4,17 @@ from routes.upload import upload_bp
 from routes.grading import grading_bp
 import config
 
-# Load environment variables from .env file
-# This MUST happen before anything tries to read os.getenv()
+# Loading environment variables from .env file
 load_dotenv()
 
-# Create the Flask app
+# Creating the Flask app
 app = Flask(__name__)
 
-# Configure the app with our settings
-# SECRET_KEY is used by Flask to sign session cookies — it's a security thing
-# For now we use a simple key; in production you'd use something random and long
+# For future use, to sign session cookies, to be changed before deploying
 app.config['SECRET_KEY'] = 'dev-secret-key-change-later'
-app.config['MAX_CONTENT_LENGTH'] = config.MAX_FILE_SIZE_MB * 1024 * 1024  # Convert MB to bytes
+app.config['MAX_CONTENT_LENGTH'] = config.MAX_FILE_SIZE_MB * 1024 * 1024  # Converting MB to bytes
 
-# Register blueprints
+# Registering blueprints
 app.register_blueprint(upload_bp)
 app.register_blueprint(grading_bp)
 

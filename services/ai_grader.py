@@ -1,16 +1,5 @@
 """
-AI Grader Service
------------------
-Handles all communication with Azure OpenAI (GPT-5 series).
-
-IMPORTANT: GPT-5 models use a different API pattern than older models:
-- Uses OpenAI client (not AzureOpenAI)
-- Uses base_url pointing to /openai/v1/
-- Uses "developer" role instead of "system" role
-- Uses max_completion_tokens instead of max_tokens
-- Does NOT support temperature, top_p, or other sampling parameters
-- Supports reasoning_effort (low/medium/high) to control thinking depth
-
+Handles communication with Azure OpenAI (GPT-5 series).
 Reference: https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/reasoning
 """
 import time
@@ -21,23 +10,18 @@ import config
 
 
 def get_client():
-    """
-    Create and return an OpenAI client configured for Azure.
+    # Create and return an OpenAI client configured for Azure.
     
-    GPT-5 models on Azure use the OpenAI client (not AzureOpenAI)
-    with a base_url pointing to the Azure endpoint.
-    This is different from older models like GPT-4o — it's the new pattern.
-    """
     client = OpenAI(
         api_key=config.AZURE_API_KEY,
-        base_url=config.AZURE_ENDPOINT  # e.g. https://your-resource.openai.azure.com/openai/v1/
+        base_url=config.AZURE_ENDPOINT  
     )
     return client
 
 
 def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="medium"):
     """
-    Send a prompt to Azure OpenAI GPT-5-mini and get a response.
+    Send a prompt to Azure and get a response.
     
     Includes automatic retry with exponential backoff for rate limit
     and timeout errors. Retries up to 3 times with doubling wait times
@@ -46,7 +30,7 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
     max_retries = 3
     base_wait = 2  # Starting wait time in seconds
     
-    for attempt in range(max_retries + 1):  # 0, 1, 2, 3 — first attempt + 3 retries
+    for attempt in range(max_retries + 1):  # 0, 1, 2, 3: first attempt + 3 retries
         try:
             client = get_client()
             
@@ -69,7 +53,7 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
             print(f"Usage: {response.usage}")
             print(f"{'='*50}\n")
             
-            result_text = response.choices[0].message.content
+            result_text = response.choices[0].message.content # Get the text content from the AI's response
             
             if not result_text:
                 return {
@@ -91,7 +75,7 @@ def call_ai(developer_prompt, user_prompt, expect_json=True, reasoning_effort="m
                 cleaned = re.sub(r' +', ' ', cleaned)
                 
                 try:
-                    return json.loads(cleaned)
+                    return json.loads(cleaned) 
                 except json.JSONDecodeError:
                     print(f"\nDEBUG: JSON parsing failed")
                     print(f"First 100 chars: {repr(cleaned[:100])}")
@@ -150,7 +134,7 @@ def map_sections(report_text, rubric_data):
         developer_prompt=MAPPING_SYSTEM_PROMPT,
         user_prompt=user_prompt,
         expect_json=True,
-        reasoning_effort="medium"  # Mapping is simpler than grading
+        reasoning_effort="medium"  
     )
     
     if isinstance(result, dict) and 'error' in result:
@@ -175,10 +159,6 @@ def grade_report(report_text, rubric_data):
     
     Stage 1: Map report sections to criteria (one API call)
     Stage 2: Grade all criteria using the mapping (one API call)
-    
-    This decomposition is supported by research showing that
-    separating evidence identification from scoring improves
-    accuracy and reduces central tendency bias.
     """
     from prompts.grading_prompt import GRADING_SYSTEM_PROMPT, build_grading_prompt
     
@@ -202,7 +182,7 @@ def grade_report(report_text, rubric_data):
         developer_prompt=GRADING_SYSTEM_PROMPT,
         user_prompt=user_prompt,
         expect_json=True,
-        reasoning_effort="medium"  # High effort for grading accuracy
+        reasoning_effort="medium"  
     )
     
     if isinstance(result, dict) and 'error' in result:
@@ -216,10 +196,10 @@ def grade_report(report_text, rubric_data):
     for criterion in result['criteria_results']:
         criterion.setdefault('confidence', 'High')
 
-    # Store the mapping in the result for traceability (FR-13)
+    # Store the mapping in the result for traceability 
     result['section_mapping'] = section_mapping
     
-    # Calculate overall weighted score (FR-19)
+    # Calculate overall weighted score 
     result = calculate_overall_score(result, rubric_data)
     
     return result
@@ -227,7 +207,7 @@ def grade_report(report_text, rubric_data):
 
 def calculate_overall_score(grading_result, rubric_data):
     """
-    Calculate the overall weighted score from individual criterion scores (FR-19).
+    Calculate the overall weighted score from individual criterion scores.
     Uses word-overlap similarity for matching criterion names.
     """
     total_weighted_score = 0
@@ -240,7 +220,7 @@ def calculate_overall_score(grading_result, rubric_data):
         
         best_match = None
         best_score = 0
-        
+        # Matching criterion name to the rubric after grading (the AI might not send exact criterion names)
         for rubric_criterion in rubric_criteria:
             rubric_name = rubric_criterion['name'].lower().strip()
             
@@ -256,7 +236,7 @@ def calculate_overall_score(grading_result, rubric_data):
             if similarity > best_score:
                 best_score = similarity
                 best_match = rubric_criterion
-        
+        # Using the weighting of the best matched word
         if best_match and best_score > 0.3:
             matching_weight = best_match['weighting']
         else:
@@ -274,14 +254,15 @@ def calculate_overall_score(grading_result, rubric_data):
     else:
         overall_score = 0
     
-    # Determine grade band from rubric's actual bands — use the first criterion that has bands
+    # Finding the 1st criterion that has grade bands, and grabbing its grade band. Return an empty list if none exist.
     grade_bands = next(
         (c.get('grade_bands', []) for c in rubric_data['criteria'] if c.get('grade_bands')),
         []
     )
+    # finding the overall grade band
     overall_band = "Unknown"
     for band in grade_bands:
-        band_range = band['range'].replace('–', '-')
+        band_range = band['range'].replace('–', '-') # Some rubrics use an en dash (–) instead of a hyphen (-), this is normalising before splitting it.
         parts = band_range.split('-')
         if len(parts) == 2:
             try:

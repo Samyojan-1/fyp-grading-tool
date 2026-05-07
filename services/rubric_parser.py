@@ -1,12 +1,9 @@
 """
-Rubric Parser Service
---------------------
 Parses marking rubrics using AI to extract:
 - Criteria names
 - Weightings
 - Grade band descriptors
-
-The parsed rubric is saved as JSON for reuse (FR-05, FR-37).
+The parsed rubric is saved as JSON for reuse.
 """
 
 import os
@@ -18,7 +15,7 @@ import config
 
 
 # The prompt that tells the AI how to parse the rubric
-# This is stored here (not hardcoded in a route) per NFR-09
+
 RUBRIC_PARSE_PROMPT = """You are a marking rubric parser for university Final Year Projects.
 
 Your job is to extract ALL grading criteria from the rubric provided.
@@ -73,8 +70,7 @@ Return ONLY the JSON object, no other text.
 
 def parse_rubric(rubric_file_path):
     """
-    Parse a rubric file and extract criteria using AI.
-    
+    Parses a rubric file and extracts criteria using AI.
     Steps:
     1. Extract text from the rubric PDF
     2. Send it to the AI with parsing instructions
@@ -91,7 +87,7 @@ def parse_rubric(rubric_file_path):
     if not rubric_text.strip():
         return {'error': 'Rubric file appears to be empty or unreadable.'}
     
-    # Step 2: Send to AI for parsing (FR-09, FR-38)
+    # Step 2: Send to AI for parsing 
     result = call_ai(
         developer_prompt=RUBRIC_PARSE_PROMPT,
         user_prompt=f"Here is the marking rubric to parse:\n\n{rubric_text}",
@@ -100,15 +96,12 @@ def parse_rubric(rubric_file_path):
     
     # Step 3: Validate the result
     if isinstance(result, dict) and 'error' in result:
-        return result
+        return result # This is the error dictionary
     
     # Basic validation — make sure we got criteria back
     if 'criteria' not in result or len(result['criteria']) == 0:
         return {'error': 'AI could not extract any criteria from this rubric.'}
     
-    # Basic validation — make sure we got criteria back
-    if 'criteria' not in result or len(result['criteria']) == 0:
-        return {'error': 'AI could not extract any criteria from this rubric.'}
     
     # DEBUG: Print what we parsed so we can verify
     # print("\n" + "="*50)
@@ -129,9 +122,8 @@ def parse_rubric(rubric_file_path):
 
 def save_rubric(parsed_rubric, original_filename):
     """
-    Save a parsed rubric as a JSON file in the rubrics folder (FR-37).
-    
-    The filename is human-readable: RubricName_2026-04-03.json
+    Save a parsed rubric as a JSON file in the rubrics folder.
+    The filename is: RubricName_yyyy-mm-dd.json
     Returns the saved filename.
     """
     # Make sure the rubrics folder exists
@@ -146,7 +138,7 @@ def save_rubric(parsed_rubric, original_filename):
     
     filepath = os.path.join(config.RUBRIC_FOLDER, filename)
     
-    # Save as formatted JSON (indent=2 makes it human-readable)
+    # Save as formatted JSON 
     with open(filepath, 'w') as f:
         json.dump(parsed_rubric, f, indent=2)
     
@@ -154,7 +146,7 @@ def save_rubric(parsed_rubric, original_filename):
 
 
 def load_rubric(filename):
-    """Load a previously saved rubric JSON file."""
+    #Load a previously saved rubric JSON file
     filepath = os.path.join(config.RUBRIC_FOLDER, filename)
     
     if not os.path.exists(filepath):

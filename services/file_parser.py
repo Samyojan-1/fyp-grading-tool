@@ -1,31 +1,18 @@
-"""
-File Parser Service
--------------------
-Responsible for extracting text from PDF and DOCX files.
-This module knows NOTHING about Flask, routes, or web requests.
-It just takes a file path and returns text. That's it.
-"""
+# Extracts text from DOCX and PDF files. 
 
-import fitz  # This is PyMuPDF — confusing, but that's the import name
+import fitz  # This is PyMuPDF 
 import pymupdf4llm
 # from docx import Document
 
 def extract_text_from_pdf(file_path):
     """
     Extract text from a PDF file using PyMuPDF4LLM.
-    
-    Why pymupdf4llm instead of plain PyMuPDF?
-    - Outputs Markdown, which preserves document structure (headings, tables, lists)
-    - LLMs understand Markdown natively, so the AI gets better context
-    - Section headers become # headers, making FR-36 (section detection) easier
     """
     try:
-        import pymupdf4llm
-        import fitz  # Still need this for page count and scanned PDF detection
+        # import pymupdf4llm
+        # import fitz  
 
-        # Fast pre-check for scanned PDFs using plain fitz (FR-04)
-        # pymupdf4llm.to_markdown is very slow on scanned PDFs because it processes
-        # page images — this check avoids that by using fitz.get_text() which is instant.
+        # Fast pre-check for scanned PDFs using plain fitz 
         doc = fitz.open(file_path)
         page_count = len(doc)
         quick_text = "".join(page.get_text() for page in doc)
@@ -40,7 +27,7 @@ def extract_text_from_pdf(file_path):
                 'is_scanned': True
             }
 
-        # PDF has extractable text — proceed with pymupdf4llm for rich Markdown output
+        # PDF has extractable text
         # page_chunks=True gives us the text broken down by page
         md_pages = pymupdf4llm.to_markdown(file_path, page_chunks=True)
 
@@ -73,26 +60,13 @@ def extract_text_from_pdf(file_path):
 
 def extract_text_from_docx(file_path):
     """
-    Extract text from a DOCX file and convert to Markdown using Pandoc.
-    
-    Why Pandoc?
-    - It's the gold standard for document format conversion
-    - Produces high-quality Markdown from DOCX (headings, bold, italic, tables, lists)
-    - Output quality is comparable to pymupdf4llm for PDFs
-    - This ensures consistent AI input regardless of file format
-    
-    We call Pandoc as a subprocess (command-line tool) from Python.
-    subprocess.run() is Python's way of running terminal commands programmatically.
+    Extract text from a DOCX and convert to Markdown using Pandoc.
+    We call Pandoc as a subprocess from Python.
     """
     try:
         import subprocess
         
-        # subprocess.run() executes a terminal command from Python
-        # It's like typing this in Terminal: pandoc input.docx -t markdown
-        # 
-        # capture_output=True — captures what the command prints (stdout)
-        # text=True — returns the output as a string, not bytes
-        # check=True — raises an error if the command fails
+        # subprocess.run() is used to run a terminal command from Python
         result = subprocess.run(
             ['pandoc', file_path, '-t', 'markdown'],
             capture_output=True,
@@ -206,14 +180,9 @@ def extract_text_from_docx(file_path):
 
 def extract_text(file_path):
     """
-    Main entry point — detects file type and calls the right extractor.
-    
+    Main entry point. 
+    Detects file type and calls the right extractor.
     This is the function other parts of the app will call.
-    They don't need to know whether it's a PDF or DOCX —
-    they just call extract_text() and get back the result.
-    
-    This pattern is called a "facade" — a simple interface
-    that hides the complexity behind it.
     """
     if file_path.lower().endswith('.pdf'):
         return extract_text_from_pdf(file_path)

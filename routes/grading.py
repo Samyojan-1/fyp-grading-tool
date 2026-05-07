@@ -11,23 +11,25 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 grading_bp = Blueprint('grading', __name__)
 
 @grading_bp.route('/grading')
-def grading_page():
-    """Show the grading results page."""
+def grading_page(): # Shows the grading results page
+    
     results_path = session.get('results_path')
     
+    # to check if we have a path
     if not results_path:
         flash('No grading results available. Please upload a report first.', 'error')
         return redirect(url_for('upload.upload_page'))
     
-    try:
-        if not os.path.exists(results_path):
+    try: # to check if that path leads to an actual file
+        if not os.path.exists(results_path): 
             flash('Results file not found. Please grade a report again.', 'error')
             return redirect(url_for('upload.upload_page'))
         
         with open(results_path, 'r') as f:
             results_data = json.load(f)
         
-        return render_template('results.html',
+        #loading results.html with these variables
+        return render_template('results.html', 
             results=results_data['grading_result'],
             student=results_data['student_info'],
             results_path=results_path
@@ -37,13 +39,9 @@ def grading_page():
         return redirect(url_for('upload.upload_page'))
     
 @grading_bp.route('/grading/save', methods=['POST'])
-def save_results():
-    """
-    Save the edited grading results (FR-29).
-    The marker has reviewed and potentially edited scores and feedback.
-    We save this as the final version.
-    """
-    results_path = request.form.get('results_path')
+def save_results(): # Save the edited grading results
+
+    results_path = request.form.get('results_path') #getting the path to grading_results.json file 
     
     if not results_path or not os.path.exists(results_path):
         flash('Could not find results to save.', 'error')
@@ -93,7 +91,7 @@ def save_results():
     # Update overall summary
     results_data['grading_result']['overall_summary'] = request.form.get('overall_summary', '')
     
-    # Recalculate overall score (FR-28)
+    # Recalculate overall score
     if total_weight > 0:
         overall_score = round(total_weighted_score / total_weight, 1)
     else:
@@ -116,7 +114,7 @@ def save_results():
 
 @grading_bp.route('/grading/export')
 def export_grading():
-    """Export grading results as PDF and Excel (FR-40)."""
+    # Export grading results as PDF and Excel 
     results_path = session.get('results_path')
     
     if not results_path or not os.path.exists(results_path):

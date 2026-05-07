@@ -4,7 +4,7 @@ Grading Prompts — Two-Stage Pipeline
 Stage 1: Section Mapping — maps rubric criteria to report sections
 Stage 2: Grading — grades each criterion using the mapping as a guide
 
-Stored separately from logic for easy tuning (NFR-09).
+Stored separately from logic for easy tuning.
 """
 
 # ============================================================
@@ -165,8 +165,7 @@ def build_mapping_prompt(report_text, criteria_list):
     """
     Build the user prompt for Stage 1 (section mapping).
     
-    We send the full report and just the criteria names + descriptions
-    (not the full grade band descriptors — those aren't needed for mapping).
+    We send the full report and just the criteria names + descriptions.
     """
     criteria_section = "=== RUBRIC CRITERIA TO MAP ===\n\n"
     
@@ -195,7 +194,7 @@ def build_grading_prompt(report_text, rubric_data, section_mapping):
     Build the user prompt for Stage 2 (grading).
     
     We send the full report, the complete rubric with grade band descriptors,
-    AND the section mapping from Stage 1 to guide the AI's focus.
+    and the section mapping from Stage 1 to guide the AI's focus.
     """
     # Format the section mapping
     mapping_section = "=== SECTION MAPPING (from prior analysis) ===\n\n"
