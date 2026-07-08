@@ -3,6 +3,32 @@
 {% block title %}Results — FYP Grading Tool{% endblock %}
 
 {% block content %}
+{% if batch_nav %}
+<!-- Batch navigation: walk through the graded reports one after another -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        {% if batch_nav.prev_url %}
+            <a href="{{ batch_nav.prev_url }}" class="btn btn-outline-primary">&larr; Previous report</a>
+        {% else %}
+            <button class="btn btn-outline-secondary" disabled>&larr; Previous report</button>
+        {% endif %}
+    </div>
+    <div class="text-center">
+        {% if batch_nav.position %}
+            <span class="fw-semibold">Report {{ batch_nav.position }} of {{ batch_nav.total }}</span><br>
+        {% endif %}
+        <a href="{{ batch_nav.batch_url }}" class="small">Back to batch summary</a>
+    </div>
+    <div>
+        {% if batch_nav.next_url %}
+            <a href="{{ batch_nav.next_url }}" class="btn btn-outline-primary">Next report &rarr;</a>
+        {% else %}
+            <button class="btn btn-outline-secondary" disabled>Next report &rarr;</button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 <h2 class="mb-4">Grading results</h2>
 
 <div class="alert alert-info py-2 mb-4">
@@ -38,6 +64,11 @@
 <!-- Save form wraps everything -->
 <form method="POST" action="/grading/save" id="results-form">
     <input type="hidden" name="results_path" value="{{ results_path }}">
+    {% if batch_nav %}
+    <!-- Keep the batch context after saving, so we come back to this report -->
+    <input type="hidden" name="batch" value="{{ batch_nav.batch_id }}">
+    <input type="hidden" name="report" value="{{ batch_nav.report_index }}">
+    {% endif %}
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">Criterion breakdown</h5>
@@ -115,8 +146,13 @@
     <!-- Action buttons -->
     <div class="d-flex gap-3 mb-4">
         <button type="submit" class="btn btn-success btn-lg">Save final result</button>
+        {% if batch_nav %}
+        <a href="{{ url_for('grading.export_grading', batch=batch_nav.batch_id, report=batch_nav.report_index) }}" class="btn btn-primary btn-lg">Export as PDF & Excel</a>
+        <a href="{{ batch_nav.batch_url }}" class="btn btn-outline-secondary btn-lg">Back to batch</a>
+        {% else %}
         <a href="/grading/export" class="btn btn-primary btn-lg">Export as PDF & Excel</a>
         <a href="/" class="btn btn-outline-secondary btn-lg">Grade another report</a>
+        {% endif %}
     </div>
 </form>
 

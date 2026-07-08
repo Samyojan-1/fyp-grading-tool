@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fyp-grading-tool",
+      "runtimeExecutable": "./venv/bin/python",
+      "runtimeArgs": ["app.py"],
+      "cwd": "/Users/samyojandevkota/Desktop/miscallenous/University of Portsmouth/FYP research documents/FYP_submission/fyp-grading-tool",
+      "port": 5001
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk upload — FYP Grading Tool{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+
+        <h2 class="mb-1">Bulk upload</h2>
+        <p class="text-muted mb-4">Select a saved rubric, attach multiple reports, and leave the tool to grade them all in the background.</p>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if not saved_rubrics %}
+            <!-- Bulk mode needs an already-saved rubric, because parsing a new
+                 rubric requires the interactive verification step -->
+            <div class="alert alert-warning">
+                <h6 class="alert-heading">No saved rubrics yet</h6>
+                <p class="mb-0">Bulk grading uses a previously saved rubric. Go to the
+                <a href="/">single upload page</a>, upload a rubric once, and confirm it —
+                it will then appear here for batch use.</p>
+            </div>
+        {% else %}
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form method="POST" action="/bulk-upload" enctype="multipart/form-data">
+
+                        <!-- Rubric selection (saved rubrics only) -->
+                        <div class="mb-3">
+                            <label for="rubric_choice" class="form-label fw-semibold">Marking rubric</label>
+                            <select class="form-select" id="rubric_choice" name="rubric_choice" required>
+                                {% for rubric in saved_rubrics %}
+                                    <option value="{{ rubric }}">{{ rubric }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">All reports in the batch are graded against this rubric.</div>
+                        </div>
+
+                        <!-- Multiple report upload -->
+                        <div class="mb-3">
+                            <label for="reports" class="form-label fw-semibold">Student reports (PDF or DOCX)</label>
+                            <!-- 'multiple' lets the user pick many files at once -->
+                            <input type="file" class="form-control" id="reports" name="reports"
+                                   accept=".pdf,.docx" multiple required>
+                            <div class="form-text">
+                                Select all the reports at once (Cmd/Ctrl-click or drag a selection).
+                                Student names and UP numbers are read from the filenames,
+                                e.g. <code>65_DSA_Benjamin_West_UP2113294.pdf</code>.
+                            </div>
+                            <div class="form-text fw-semibold text-primary" id="file-count"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-btn">Start batch grading</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('reports');
+    if (fileInput) {
+        // Show how many files are selected, so the user can double-check
+        fileInput.addEventListener('change', function() {
+            const count = this.files.length;
+            document.getElementById('file-count').textContent =
+                count === 0 ? '' : count + ' file(s) selected';
+        });
+
+        // Disable the button after submit so it can't be clicked twice
+        document.querySelector('form').addEventListener('submit', function() {
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading files...';
+        });
+    }
+</script>
+{% endblock %}

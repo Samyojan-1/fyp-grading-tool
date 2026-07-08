@@ -10,29 +10,91 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 
 grading_bp = Blueprint('grading', __name__)
 
+def get_batch_context():
+    """
+    Check if the results page is being viewed as part of a batch
+    (URL like /grading?batch=batch_20260708_143210&report=3).
+
+    Returns (results_path, batch_nav) where batch_nav holds the
+    Previous/Next links, or (None, None) when not viewing a batch.
+    """
+    from services import batch_grader
+
+    batch_id = request.args.get('batch')
+    report_arg = request.args.get('report')
+
+    if not batch_id or report_arg is None:
+        return None, None
+
+    status = batch_grader.load_status(batch_id)
+    if status is None:
+        return None, None
+
+    try:
+        report_index = int(report_arg)
+        entry = status['reports'][report_index]
+    except (ValueError, IndexError):
+        return None, None
+
+    results_path = os.path.join(entry['folder'], 'grading_results.json')
+
+    # Previous/Next only steps through reports that actually got graded
+    graded = [r['index'] for r in status['reports'] if r['status'] == 'done']
+    prev_url = None
+    next_url = None
+    position = None
+    if report_index in graded:
+        pos = graded.index(report_index)
+        position = pos + 1
+        if pos > 0:
+            prev_url = url_for('grading.grading_page', batch=batch_id, report=graded[pos - 1])
+        if pos < len(graded) - 1:
+            next_url = url_for('grading.grading_page', batch=batch_id, report=graded[pos + 1])
+
+    batch_nav = {
+        'batch_id': batch_id,
+        'report_index': report_index,
+        'position': position,
+        'total': len(graded),
+        'prev_url': prev_url,
+        'next_url': next_url,
+        'batch_url': url_for('batch.batch_page', batch_id=batch_id),
+    }
+    return results_path, batch_nav
+
+
 @grading_bp.route('/grading')
 def grading_page(): # Shows the grading results page
-    
-    results_path = session.get('results_path')
-    
+
+    # Batch mode: the URL tells us which report to show
+    results_path, batch_nav = get_batch_context()
+
+    # Single mode: fall back to the path stored in the session
+    if not results_path:
+        results_path = session.get('results_path')
+
     # to check if we have a path
     if not results_path:
         flash('No grading results available. Please upload a report first.', 'error')
         return redirect(url_for('upload.upload_page'))
-    
+
     try: # to check if that path leads to an actual file
-        if not os.path.exists(results_path): 
+        if not os.path.exists(results_path):
             flash('Results file not found. Please grade a report again.', 'error')
             return redirect(url_for('upload.upload_page'))
-        
+
         with open(results_path, 'r') as f:
             results_data = json.load(f)
-        
+
+        # Remember this path so save/export keep working in batch mode too
+        session['results_path'] = results_path
+
         #loading results.html with these variables
-        return render_template('results.html', 
+        return render_template('results.html',
             results=results_data['grading_result'],
             student=results_data['student_info'],
-            results_path=results_path
+            results_path=results_path,
+            batch_nav=batch_nav
         )
     except Exception as e:
         flash(f'Error loading results: {str(e)}', 'error')
@@ -107,9 +169,16 @@ def save_results(): # Save the edited grading results
         json.dump(results_data, f, indent=2)
     
     flash('Results saved successfully! Scores and feedback have been updated.', 'success')
-    
+
     # Reload the page with updated results
     session['results_path'] = results_path
+
+    # If we came from a batch, go back to the same report in the batch
+    batch_id = request.form.get('batch')
+    report_index = request.form.get('report')
+    if batch_id:
+        return redirect(url_for('grading.grading_page', batch=batch_id, report=report_index))
+
     return redirect(url_for('grading.grading_page'))
 
 @grading_bp.route('/grading/export')
@@ -143,5 +212,11 @@ def export_grading():
         messages.append(f'PDF exported successfully')
     
     flash(f'Export complete: {". ".join(messages)}. Files saved to submission folder.', 'success')
-    
+
+    # If we came from a batch, go back to the same report in the batch
+    batch_id = request.args.get('batch')
+    report_index = request.args.get('report')
+    if batch_id:
+        return redirect(url_for('grading.grading_page', batch=batch_id, report=report_index))
+
     return redirect(url_for('grading.grading_page'))

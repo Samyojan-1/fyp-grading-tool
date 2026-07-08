@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Batch progress — FYP Grading Tool{% endblock %}
+
+{% block content %}
+<h2 class="mb-1">Batch grading</h2>
+<p class="text-muted mb-4">
+    Rubric: <strong>{{ status.rubric_name }}</strong> &middot; Started {{ status.created }}
+</p>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- Summary banner — filled in by JavaScript -->
+<div id="summary-area"></div>
+
+<!-- Progress bar -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-semibold" id="progress-label">Loading...</span>
+            <span class="text-muted small">You can close this page — grading continues on the server.</span>
+        </div>
+        <div class="progress" style="height: 24px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                 id="progress-bar" role="progressbar" style="width: 0%">0%</div>
+        </div>
+    </div>
+</div>
+
+<!-- Per-report table — rows filled in by JavaScript -->
+<div class="card shadow-sm mb-4">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 40px;">#</th>
+                <th>Report</th>
+                <th>Student</th>
+                <th style="width: 130px;">Status</th>
+                <th style="width: 90px;">Score</th>
+                <th style="width: 110px;">Action</th>
+            </tr>
+        </thead>
+        <tbody id="report-rows">
+            <tr><td colspan="6" class="text-center text-muted py-4">Loading batch status...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<a href="/bulk" class="btn btn-outline-secondary">Start another batch</a>
+
+<script>
+    const BATCH_ID = "{{ status.batch_id }}";
+    const STATUS_URL = "/batch/" + BATCH_ID + "/status";
+    let pollTimer = null;
+
+    // Map each status to a Bootstrap badge colour
+    const BADGES = {
+        pending: '<span class="badge bg-secondary">Pending</span>',
+        grading: '<span class="badge bg-primary"><span class="spinner-border spinner-border-sm me-1" style="width:0.7rem;height:0.7rem;"></span>Grading</span>',
+        done:    '<span class="badge bg-success">Done</span>',
+        flagged: '<span class="badge bg-warning text-dark">Flagged</span>',
+        failed:  '<span class="badge bg-danger">Failed</span>'
+    };
+
+    // Escape user-provided text (filenames, names) before putting it in HTML
+    function esc(text) {
+        const div = document.createElement('div');
+        div.textContent = text == null ? '' : String(text);
+        return div.innerHTML;
+    }
+
+    function renderRow(r) {
+        let student = esc(r.student_name);
+        if (r.student_number) student += ' <span class="text-muted small">(' + esc(r.student_number) + ')</span>';
+
+        // Flags and errors show as small text under the report name
+        let notes = '';
+        for (const flag of r.flags) {
+            notes += '<div class="small text-warning-emphasis">&#9888; ' + esc(flag) + '</div>';
+        }
+        if (r.error) {
+            notes += '<div class="small text-danger">' + esc(r.error) + '</div>';
+        }
+
+        let score = '—';
+        if (r.overall_score !== null && r.overall_score !== undefined) {
+            score = '<strong>' + esc(r.overall_score) + '%</strong>';
+        }
+
+        let action = '—';
+        if (r.status === 'done' && r.view_url) {
+            action = '<a class="btn btn-sm btn-outline-primary" href="' + r.view_url + '">View</a>';
+        } else if (r.status === 'failed') {
+            action = '<button class="btn btn-sm btn-outline-danger" onclick="retryReport(' + r.index + ')">Retry</button>';
+        }
+
+        return '<tr>' +
+            '<td class="text-muted">' + (r.index + 1) + '</td>' +
+            '<td><span class="small">' + esc(r.filename) + '</span>' + notes + '</td>' +
+            '<td>' + student + '</td>' +
+            '<td>' + (BADGES[r.status] || esc(r.status)) + '</td>' +
+            '<td>' + score + '</td>' +
+            '<td>' + action + '</td>' +
+            '</tr>';
+    }
+
+    function renderSummary(data) {
+        const c = data.counts;
+        const finished = c.pending === 0;
+
+        // Interrupted: nothing running on the server but reports still pending
+        // (happens if the server was restarted mid-batch)
+        if (!data.running && !finished) {
+            return '<div class="alert alert-warning d-flex justify-content-between align-items-center">' +
+                '<div><strong>Batch interrupted.</strong> ' + c.pending + ' report(s) not graded yet ' +
+                '(the server may have restarted).</div>' +
+                '<button class="btn btn-warning" onclick="resumeBatch()">Resume grading</button></div>';
+        }
+
+        if (!finished) return ''; // Still running — the progress bar tells the story
+
+        // Finished: show the "did everything go well" summary
+        let parts = ['&#9989; ' + c.done + ' graded'];
+        if (c.flagged > 0) parts.push('&#9888;&#65039; ' + c.flagged + ' flagged for manual review');
+        if (c.failed > 0) parts.push('&#10060; ' + c.failed + ' failed');
+
+        const allGood = c.flagged === 0 && c.failed === 0;
+        const cls = allGood ? 'alert-success' : 'alert-warning';
+        const heading = allGood ? 'Batch complete — all reports graded.' : 'Batch complete — some reports need attention.';
+
+        return '<div class="alert ' + cls + '"><h6 class="alert-heading">' + heading + '</h6>' +
+            '<p class="mb-0">' + parts.join(' &middot; ') + '</p></div>';
+    }
+
+    async function refresh() {
+        try {
+            const response = await fetch(STATUS_URL);
+            if (!response.ok) return;
+            const data = await response.json();
+
+            const c = data.counts;
+            const finishedCount = c.done + c.flagged + c.failed;
+            const percent = c.total === 0 ? 0 : Math.round(finishedCount / c.total * 100);
+
+            document.getElementById('progress-label').textContent =
+                'Processed ' + finishedCount + ' of ' + c.total + ' reports';
+            const bar = document.getElementById('progress-bar');
+            bar.style.width = percent + '%';
+            bar.textContent = percent + '%';
+            if (c.pending === 0) bar.classList.remove('progress-bar-animated', 'progress-bar-striped');
+
+            document.getElementById('report-rows').innerHTML = data.reports.map(renderRow).join('');
+            document.getElementById('summary-area').innerHTML = renderSummary(data);
+
+            // Stop polling once nothing is pending or running
+            if (c.pending === 0 && !data.running) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+        } catch (e) {
+            // Network hiccup — just try again on the next poll
+        }
+    }
+
+    function startPolling() {
+        if (!pollTimer) pollTimer = setInterval(refresh, 3000);
+    }
+
+    async function resumeBatch(reportIndex) {
+        const body = new FormData();
+        if (reportIndex !== undefined) body.append('report_index', reportIndex);
+        await fetch('/batch/' + BATCH_ID + '/resume', { method: 'POST', body: body });
+        startPolling();
+        refresh();
+    }
+
+    function retryReport(index) {
+        resumeBatch(index);
+    }
+
+    refresh();          // Load immediately on page open
+    startPolling();     // Then poll every 3 seconds
+</script>
+{% endblock %}

@@ -2,6 +2,7 @@ from flask import Flask
 from dotenv import load_dotenv
 from routes.upload import upload_bp
 from routes.grading import grading_bp
+from routes.batch import batch_bp
 import config
 
 # Loading environment variables from .env file
@@ -17,7 +18,8 @@ app.config['MAX_CONTENT_LENGTH'] = config.MAX_FILE_SIZE_MB * 1024 * 1024  # Conv
 # Registering blueprints
 app.register_blueprint(upload_bp)
 app.register_blueprint(grading_bp)
+app.register_blueprint(batch_bp)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)
     

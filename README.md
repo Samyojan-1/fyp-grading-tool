@@ -131,6 +131,17 @@ The app runs at `http://127.0.0.1:5001`
 - Click "Save final result" to save any edits
 - Click "Export as PDF & Excel" to download both formats to the submission folder
 
+### Bulk grading
+
+To grade many reports in one go (e.g. a whole cohort):
+
+1. Go to **Bulk upload** in the navbar
+2. Select a previously saved rubric (bulk mode requires a saved rubric — upload and confirm one via the single-upload flow first)
+3. Select all the report files at once (PDF/DOCX). Student names and UP numbers are read automatically from filenames like `65_DSA_Benjamin_West_UP2113294.pdf`; files that can't be parsed are still graded but flagged for manual checking
+4. Click "Start batch grading" — grading runs in the background (2–3 reports in parallel), and the progress page shows live status. You can close the page and come back; grading continues on the server
+5. When finished, the page becomes a summary: graded / flagged / failed counts, with a "View" link per report and a "Retry" button for failures
+6. Open any report's results and use "Previous / Next report" to review the whole batch one by one, editing and exporting as usual
+
 ---
 
 ## Project Structure
@@ -144,12 +155,14 @@ fyp-grading-tool/
 │
 ├── routes/
 │   ├── upload.py           # Upload, rubric parsing, and grading flow
-│   └── grading.py          # Results display, save, and export routes
+│   ├── grading.py          # Results display, save, and export routes
+│   └── batch.py            # Bulk upload, batch progress, and status polling routes
 │
 ├── services/
 │   ├── ai_grader.py        # Azure OpenAI client, grading pipeline, score calculation
 │   ├── rubric_parser.py    # Rubric PDF parsing using AI
 │   ├── file_parser.py      # PDF and DOCX text extraction
+│   ├── batch_grader.py     # Background batch grading, filename parsing, status tracking
 │   └── export.py           # PDF and Excel export generation
 │
 ├── prompts/
@@ -158,6 +171,8 @@ fyp-grading-tool/
 ├── templates/              # Jinja2 HTML templates
 │   ├── base.html           # Base layout (navbar, footer, Bootstrap)
 │   ├── upload.html         # Upload form
+│   ├── bulk_upload.html    # Bulk upload form (multiple reports, one rubric)
+│   ├── batch_progress.html # Live batch progress and summary page
 │   ├── rubric_verify.html  # Rubric verification page
 │   └── results.html        # Grading results and editing
 │
@@ -184,5 +199,6 @@ python -m pytest tests/ -v
 - Scanned PDFs (image-based, no extractable text) are not supported (the tool detects these and flags an error message)
 - Rubrics must be uploaded as PDF files
 - The AI grading pipeline makes two API calls per submission and typically takes 2–4 minutes
+- Bulk grading runs `MAX_PARALLEL_REPORTS` (default 2, set in `config.py`) reports at once — the limit is Azure OpenAI rate limits, not Flask. Batch state lives in `uploads/batch_<timestamp>/batch_status.json`; if the server restarts mid-batch, the progress page offers a "Resume" button
 - GPT-5-mini uses `max_completion_tokens` instead of `max_tokens`, and `reasoning_effort` instead of `temperature` (temperature is unsupported for reasoning models)
 - The tool is designed as an AI-assisted grading aid, not a fully autonomous grader, so markers are expected to review and edit all AI-generated scores and feedback
