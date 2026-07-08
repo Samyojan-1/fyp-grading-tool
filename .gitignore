@@ -184,3 +184,4 @@ uploads/
 results/
 *.pyc
 .DS_Store
+BULK_GRADING_REPORT.md
